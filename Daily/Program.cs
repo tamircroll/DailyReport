@@ -14,8 +14,7 @@ namespace Daily
         private static void Main()
         {
             new ReportBuilder().Build();
-            new TestsAnalyzer().Analize();
-
+            //new TestsAnalyzer().Analize();
         }
     }
 }
