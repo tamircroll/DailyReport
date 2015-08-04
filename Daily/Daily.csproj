@@ -37,7 +37,7 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="ReportBuilder.cs" />
-    <Compile Include="TestsAnalyzer.cs" />
+    <Compile Include="MailSender.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

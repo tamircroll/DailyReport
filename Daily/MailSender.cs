@@ -4,40 +4,37 @@ using System.Net.Mail;
 
 namespace Daily
 {
-    internal class TestsAnalyzer
+    internal class MailSender
     {
-        string server = "my.smtp.exampleserver.net";
-
-        public void CreateTestMessage2()
+        public void CreateTestMessage2(string msg)
         {
             try
             {
-                SmtpClient mySmtpClient = new SmtpClient("my.smtp.exampleserver.net");
+                SmtpClient mySmtpClient = new SmtpClient("smtp");
 
                 // set smtp-client with basicAuthentication
                 mySmtpClient.UseDefaultCredentials = false;
-                System.Net.NetworkCredential basicAuthenticationInfo = new
-                    System.Net.NetworkCredential("username", "password");
+                var basicAuthenticationInfo = new
+                NetworkCredential("soluto.local\tamir", "Qwer1234");
                 mySmtpClient.Credentials = basicAuthenticationInfo;
 
                 // add from,to mailaddresses
-                MailAddress from = new MailAddress("tamir@soluto.com", "TestFromName");
-                MailAddress to = new MailAddress("tamir@soluto.com", "TestToName");
-                MailMessage myMail = new System.Net.Mail.MailMessage(from, to);
-
-                // add ReplyTo
-                MailAddress replyto = new MailAddress("tamir@soluto.com");
-                myMail.ReplyTo = replyto;
+                var from = new MailAddress("tamir@soluto.com", "TestFromName");
+                var to = new MailAddress("tamir@soluto.com", "TestToName");
+                var myMail = new System.Net.Mail.MailMessage(from, to)
+                {
+                    Subject = "Test message",
+                    SubjectEncoding = System.Text.Encoding.UTF8,
+                    Body = msg,
+                    BodyEncoding = System.Text.Encoding.UTF8,
+                    IsBodyHtml = true
+                };
 
                 // set subject and encoding
-                myMail.Subject = "Test message";
-                myMail.SubjectEncoding = System.Text.Encoding.UTF8;
 
                 // set body-message and encoding
-                myMail.Body = "<b>Test Mail</b><br>using <b>HTML</b>.";
-                myMail.BodyEncoding = System.Text.Encoding.UTF8;
+                //myMail.Body = "<b>Test Mail</b><br>using <b>HTML</b>.";
                 // text or html
-                myMail.IsBodyHtml = true;
 
                 mySmtpClient.Send(myMail);
             }
@@ -54,18 +51,19 @@ namespace Daily
 
         }
 
-        public void RetryIfBusy(string server)
+        public void RetryIfBusy(string msg)
         {
             MailAddress from = new MailAddress("tamir@soluto.com");
             MailAddress to = new MailAddress("tamir@soluto.com");
             MailMessage message = new MailMessage(from, to);
             // message.Subject = "Using the SmtpClient class.";
             message.Subject = "Using the SmtpClient class.";
-            message.Body = @"Using this feature, you can send an e-mail message from an application very easily.";
+            message.Body = msg;
+            message.IsBodyHtml = true;
             // Add a carbon copy recipient.
-            MailAddress copy = new MailAddress("Notifications@contoso.com");
-            message.CC.Add(copy);
-            SmtpClient client = new SmtpClient(server);
+           // MailAddress copy = new MailAddress("tamir@soluto.com");
+           // message.CC.Add(copy);
+            SmtpClient client = new SmtpClient("smtp");
             // Include credentials if the server requires them.
             client.Credentials = (ICredentialsByHost)CredentialCache.DefaultNetworkCredentials;
             Console.WriteLine("Sending an e-mail message to {0} using the SMTP host {1}.",

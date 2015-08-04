@@ -13,8 +13,9 @@ namespace Daily
     {
         private static void Main()
         {
-            new ReportBuilder().Build();
- //           new TestsAnalyzer().RetryIfBusy("my.smtp.exampleserver.net");
+            string msg = new ReportBuilder().Build();
+//            new MailSender().RetryIfBusy(msg);
+            new MailSender().CreateTestMessage2(msg);
         }
     }
 }

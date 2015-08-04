@@ -13,10 +13,12 @@ namespace Daily
         private const int SUCCESS = 1;
         private const int IGNORED = 2;
 
-        public void Build()
+        List<string> output = new List<string>();
+
+        public string Build()
         {
             List<List<string>> files = new List<List<string>>();
-            var output = new List<string>();
+            
             var testsCountByResults = new List<int> { 0, 0, 0 };
             var errorsToTests = new Dictionary<string, List<string>>();
             List<string>  passList= new List<string>();
@@ -29,7 +31,7 @@ namespace Daily
             {
                 if (file.Count > 3)
                 {
-                    SumFirstLines(file[3], sumByFirstLine);
+                    SumThirdLines(file[3], sumByFirstLine);
                     AddFailures(file, testsCountByResults, errorsToTests, passList);
                 }
             }
@@ -63,6 +65,7 @@ namespace Daily
             }
 
             File.WriteAllLines("c:/DailyReport/output.txt", output);
+            return string.Concat(output.ToArray());
         }
 
         private void AddFailures(List<string> lines, List<int> testsCount, Dictionary<string, List<string>> errors, List<string> passList)
@@ -140,8 +143,7 @@ namespace Daily
             return 4;
         }
 
-
-        private void SumFirstLines(string firstLine, int[] sum)
+        private void SumThirdLines(string firstLine, int[] sum)
         {
             string str = firstLine;
             var match = Regex.Match(str, @".*failed: (\d+).*passed: (\d+).*ignored: (\d+).*");
@@ -156,8 +158,6 @@ namespace Daily
                 sum[IGNORED] += ig;
             }
         }
-
-
 
         private void addFilesToList(List<List<string>> files)
         {
