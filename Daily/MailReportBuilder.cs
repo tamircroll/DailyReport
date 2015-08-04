@@ -4,10 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Daily
 {
-    internal class ReportBuilder
+    class MailReportBuilder
     {
         private const int FAILED = 0;
         private const int SUCCESS = 1;
@@ -66,7 +67,6 @@ namespace Daily
                 output.Add(BR);
             }
             output.Add("</p>");
-            File.WriteAllLines("c:/DailyReport/output.txt", output);
             return string.Concat(output.ToArray());
         }
 

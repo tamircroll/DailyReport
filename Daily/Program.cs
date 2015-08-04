@@ -13,7 +13,8 @@ namespace Daily
     {
         private static void Main()
         {
-            string msg = new ReportBuilder().Build();
+            new ReportBuilder().Build();
+            string msg = new MailReportBuilder().Build();
 //            new MailSender().RetryIfBusy(msg);
             new MailSender().CreateTestMessage2(msg);
         }
