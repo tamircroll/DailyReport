@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Daily
 {
@@ -49,10 +48,7 @@ namespace Daily
             sb.AppendFormat("Ignored: {0}, ", testsCountByResults[IGNORED]);
             sb.AppendFormat("Coverage: {0}% \n", coverage);
             output.Add(BR + sb.ToString() + BR + BR);
-
-            output.Add("By first line: All: " + all2 + " Failed: " + sumByFirstLine[0] + " Success: " + sumByFirstLine[1] + " Ignored: " +
-                       sumByFirstLine[2] + BR + BR);
-
+            
             foreach (KeyValuePair<string, List<string>> errorToTests in errorsToTests)
             {
                 int testsCounter = 1;
@@ -130,6 +126,10 @@ namespace Daily
                     error.Replace("concurrent.TimeoutException: Waiter Condition:  Wait condition failed. Exception: NoSuchElementException: Couldn't find notification element by predicate: ", "")
                     .Replace(" Timed out while waiting for: get notification if shown.", "");
                 error = "TimeoutException: NoSuchElementException: Couldn't find notification element by predicate";
+            }
+            if (error.Contains("selenium.TimeoutException: Timed out after 120 seconds waiting for visibility of Proxy element for"))
+            {
+                error = "selenium.TimeoutException: Timed out after 120 seconds waiting for visibility of Proxy element";
             }
 
             return addToEndOfTestName + BR;

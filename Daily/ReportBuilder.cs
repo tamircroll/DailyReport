@@ -12,7 +12,6 @@ namespace Daily
         private const int FAILED = 0;
         private const int SUCCESS = 1;
         private const int IGNORED = 2;
-        private const string BR = "</br>";
 
         List<string> output = new List<string>();
 
@@ -26,7 +25,7 @@ namespace Daily
             int[] sumByFirstLine = { 0, 0, 0 };
 
             addFilesToList(files);
-            output.Add(string.Format("</p>DateTime: {0}" + BR, DateTime.Now.ToString("dd/MM/yyy")));
+            output.Add(string.Format("DateTime: {0}\n", DateTime.Now.ToString("dd/MM/yyy")));
 
             foreach (var file in files)
             {
@@ -47,10 +46,10 @@ namespace Daily
             sb.AppendFormat("Success: {0}, ", testsCountByResults[SUCCESS]);
             sb.AppendFormat("Ignored: {0}, ", testsCountByResults[IGNORED]);
             sb.AppendFormat("Coverage: {0}% \n", coverage);
-            output.Add(BR + sb.ToString() + BR + BR);
+            output.Add(sb.ToString());
 
             output.Add("By first line: All: " + all2 + " Failed: " + sumByFirstLine[0] + " Success: " + sumByFirstLine[1] + " Ignored: " +
-                       sumByFirstLine[2] + BR + BR);
+                       sumByFirstLine[2]);
 
             foreach (KeyValuePair<string, List<string>> errorToTests in errorsToTests)
             {
@@ -58,14 +57,13 @@ namespace Daily
                 var errorName = errorToTests.Key;
                 var testNames = errorToTests.Value;
 
-                output.Add(string.Format("\n{0}: {1}", errorName, BR));
+                output.Add(string.Format("\n{0}: ", errorName));
                 foreach (string testName in testNames)
                 {
-                    output.Add(string.Format("<span style='font-size: 10pt'>&nbsp&nbsp&nbsp{0}. {1}</span>", testsCounter++, testName));
+                    output.Add(string.Format("         {0}. {1}", testsCounter++, testName));
                 }
-                output.Add(BR);
             }
-            output.Add("</p>");
+
             File.WriteAllLines("c:/DailyReport/output.txt", output);
             return string.Concat(output.ToArray());
         }
@@ -93,8 +91,7 @@ namespace Daily
                     else
                     {
                         string test = lines[i + 2].Replace("ERROR: Test failed: ", "");
-                        test = "<span style = 'color:red'>" + test + "</span>";
-                        test += "<span style = 'color:green'>" + " (" + lines[0] + ")" + "</span>";
+                        test += " (" + lines[0] + ")";
                         i += linesToAddToGetError(lines, i);
                         
                         string error = lines[i].Replace(" + ","");
@@ -132,7 +129,7 @@ namespace Daily
                 error = "TimeoutException: NoSuchElementException: Couldn't find notification element by predicate";
             }
 
-            return addToEndOfTestName + BR;
+            return addToEndOfTestName;
         }
 
         private int linesToAddToGetError(List<string> lines, int i)

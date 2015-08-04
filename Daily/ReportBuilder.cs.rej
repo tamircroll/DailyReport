@@ -1,0 +1,10 @@
+diff a/Daily/ReportBuilder.cs b/Daily/ReportBuilder.cs	(rejected hunks)
+@@ -31,7 +31,7 @@
+             {
+                 if (file.Count > 3)
+                 {
+-                    SumFirstLines(file[3], sumByFirstLine);
++                    SumThirdLines(file[3], sumByFirstLine);
+                     AddFailures(file, testsCountByResults, errorsToTests, passList);
+                 }
+             }

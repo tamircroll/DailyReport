@@ -15,8 +15,8 @@ namespace Daily
         {
             new ReportBuilder().Build();
             string msg = new MailReportBuilder().Build();
-//            new MailSender().RetryIfBusy(msg);
             new MailSender().CreateTestMessage2(msg);
+//            new MailSender().RetryIfBusy(msg);
         }
     }
 }

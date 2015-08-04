@@ -19,11 +19,11 @@ namespace Daily
                 mySmtpClient.Credentials = basicAuthenticationInfo;
 
                 // add from,to mailaddresses
-                var from = new MailAddress("tamir@soluto.com", "TestFromName");
+                var from = new MailAddress("tamir@soluto.com", "Tamir: ");
                 var to = new MailAddress("tamir@soluto.com", "TestToName");
                 var myMail = new System.Net.Mail.MailMessage(from, to)
                 {
-                    Subject = "Test message",
+                    Subject = "Temp daily report",
                     SubjectEncoding = System.Text.Encoding.UTF8,
                     Body = msg,
                     BodyEncoding = System.Text.Encoding.UTF8,
@@ -50,6 +50,8 @@ namespace Daily
             }
 
         }
+
+
 
         public void RetryIfBusy(string msg)
         {

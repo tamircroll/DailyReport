@@ -1,0 +1,11 @@
+diff a/Daily/Program.cs b/Daily/Program.cs	(rejected hunks)
+@@ -14,7 +14,7 @@
+         private static void Main()
+         {
+             new ReportBuilder().Build();
+-            //new TestsAnalyzer().Analize();
++ //           new TestsAnalyzer().RetryIfBusy("my.smtp.exampleserver.net");
+         }
+     }
+ }
+\ No newline at end of file
