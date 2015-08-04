@@ -46,7 +46,7 @@ namespace Daily
             sb.AppendFormat("Failed: {0}, ", testsCountByResults[FAILED]);
             sb.AppendFormat("Success: {0}, ", testsCountByResults[SUCCESS]);
             sb.AppendFormat("Ignored: {0}, ", testsCountByResults[IGNORED]);
-            sb.AppendFormat("Coverage: {0}% \n", coverage);
+            sb.AppendFormat("Coverage: {0}%", coverage);
             output.Add(BR + sb.ToString() + BR + BR);
             
             foreach (KeyValuePair<string, List<string>> errorToTests in errorsToTests)
@@ -55,7 +55,7 @@ namespace Daily
                 var errorName = errorToTests.Key;
                 var testNames = errorToTests.Value;
 
-                output.Add(string.Format("\n{0}: {1}", errorName, BR));
+                output.Add(string.Format("{0}: {1}", errorName, BR));
                 foreach (string testName in testNames)
                 {
                     output.Add(string.Format("<span style='font-size: 10pt'>&nbsp&nbsp&nbsp{0}. {1}</span>", testsCounter++, testName));
@@ -120,17 +120,19 @@ namespace Daily
                 addToEndOfTestName = "[" + error.Replace(@"concurrent.TimeoutException: Waiter Condition: AnalyticsFetcherWaitCondition Timed out while waiting for: ", "") + "]";
                 error =  "TimeoutException: Waiter Condition: AnalyticsFetcherWaitCondition";
             }
-            if (error.Contains("concurrent.TimeoutException: Waiter Condition:  Wait condition failed. Exception: NoSuchElementException: Couldn't find notification element by predicate: "))
+            else if (error.Contains("concurrent.TimeoutException: Waiter Condition:  Wait condition failed. Exception: NoSuchElementException: Couldn't find notification element by predicate: "))
             {
                 addToEndOfTestName =
                     error.Replace("concurrent.TimeoutException: Waiter Condition:  Wait condition failed. Exception: NoSuchElementException: Couldn't find notification element by predicate: ", "")
                     .Replace(" Timed out while waiting for: get notification if shown.", "");
                 error = "TimeoutException: NoSuchElementException: Couldn't find notification element by predicate";
             }
-            if (error.Contains("selenium.TimeoutException: Timed out after 120 seconds waiting for visibility of Proxy element for"))
+            else if (error.Contains("selenium.TimeoutException: Timed out after 120 seconds waiting for visibility of Proxy element for"))
             {
                 error = "selenium.TimeoutException: Timed out after 120 seconds waiting for visibility of Proxy element";
             }
+            else if (error.EndsWith(".") || error.EndsWith(":"))
+                error = error.Substring(0, error.Length - 1);
 
             return addToEndOfTestName + BR;
         }
