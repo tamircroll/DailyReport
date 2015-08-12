@@ -15,7 +15,7 @@ namespace Daily
                 // set smtp-client with basicAuthentication
                 mySmtpClient.UseDefaultCredentials = false;
                 var basicAuthenticationInfo = new
-                NetworkCredential("soluto.local\tamir", "Qwer1234");
+                    NetworkCredential("soluto.local\tamir", "Qwer1234");
                 mySmtpClient.Credentials = basicAuthenticationInfo;
 
                 // add from,to mailaddresses
@@ -23,18 +23,18 @@ namespace Daily
                 var to = new MailAddress("tamir@soluto.com", "TestToName");
                 var myMail = new System.Net.Mail.MailMessage(from, to)
                 {
-                    Subject = "Temp daily report",
+                    Subject = "Temp daily report. Date: " + DateTime.Now.ToString("dd/MM/yyy"),
                     SubjectEncoding = System.Text.Encoding.UTF8,
-                    Body = msg,
+                    Body = msg.Replace("{0}", "<span style='font-size: 10pt'>&nbsp&nbsp&nbsp")
+                        .Replace("{1}", "</span>")
+                        .Replace("{2}", "</p>")
+                        .Replace("{3}", "<span style = 'color:red'>")
+                        .Replace("{4}", "<span style = 'color:green'>")
+                        .Replace("{5}", "<br>")
+                        .Replace("{6}", "<p>"),
                     BodyEncoding = System.Text.Encoding.UTF8,
                     IsBodyHtml = true
                 };
-
-                // set subject and encoding
-
-                // set body-message and encoding
-                //myMail.Body = "<b>Test Mail</b><br>using <b>HTML</b>.";
-                // text or html
 
                 mySmtpClient.Send(myMail);
             }
@@ -60,16 +60,22 @@ namespace Daily
             MailMessage message = new MailMessage(from, to);
             // message.Subject = "Using the SmtpClient class.";
             message.Subject = "Using the SmtpClient class.";
-            message.Body = msg;
+            message.Body = msg.Replace("{0}", "<span style='font-size: 10pt'>&nbsp&nbsp&nbsp")
+                            .Replace("{1}", "</span>")
+                            .Replace("{2}", "</p>")
+                            .Replace("{3}", "<span style = 'color:red'>")
+                            .Replace("{4}", "<span style = 'color:green'>")
+                            .Replace("{5}", "<br>")
+                            .Replace("{6}", "<p>");
             message.IsBodyHtml = true;
             // Add a carbon copy recipient.
-           // MailAddress copy = new MailAddress("tamir@soluto.com");
-           // message.CC.Add(copy);
+            // MailAddress copy = new MailAddress("tamir@soluto.com");
+            // message.CC.Add(copy);
             SmtpClient client = new SmtpClient("smtp");
             // Include credentials if the server requires them.
-            client.Credentials = (ICredentialsByHost)CredentialCache.DefaultNetworkCredentials;
+            client.Credentials = (ICredentialsByHost) CredentialCache.DefaultNetworkCredentials;
             Console.WriteLine("Sending an e-mail message to {0} using the SMTP host {1}.",
-                 to.Address, client.Host);
+                to.Address, client.Host);
             try
             {
                 client.Send(message);
@@ -96,7 +102,7 @@ namespace Daily
             catch (Exception ex)
             {
                 Console.WriteLine("Exception caught in RetryIfBusy(): {0}",
-                        ex.ToString());
+                    ex.ToString());
             }
         }
     }

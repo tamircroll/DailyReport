@@ -7,11 +7,12 @@ using System.Text.RegularExpressions;
 
 namespace Daily
 {
-    internal class ReportBuilder
+    class MessageBuilder
     {
         private const int FAILED = 0;
         private const int SUCCESS = 1;
         private const int IGNORED = 2;
+        private const string LINE = "{5}";
 
         List<string> output = new List<string>();
 
@@ -25,7 +26,7 @@ namespace Daily
             int[] sumByFirstLine = { 0, 0, 0 };
 
             addFilesToList(files);
-            output.Add(string.Format("DateTime: {0}\n", DateTime.Now.ToString("dd/MM/yyy")));
+            output.Add("{6}");
 
             foreach (var file in files)
             {
@@ -41,30 +42,30 @@ namespace Daily
             int coverage = (all > 0) ? (testsCountByResults[FAILED] + testsCountByResults[SUCCESS])*100/all : 0;
             var sb = new StringBuilder();
 
-            sb.AppendFormat("Tests: {0}, ", all);
+            sb.AppendFormat("All Tests: {0}, ", all);
             sb.AppendFormat("Failed: {0}, ", testsCountByResults[FAILED]);
             sb.AppendFormat("Success: {0}, ", testsCountByResults[SUCCESS]);
             sb.AppendFormat("Ignored: {0}, ", testsCountByResults[IGNORED]);
-            sb.AppendFormat("Coverage: {0}% \n", coverage);
-            output.Add(sb.ToString());
+            sb.AppendFormat("Coverage: {0}%", coverage);
+            output.Add(LINE + sb + LINE);
 
-            output.Add("By first line: All: " + all2 + " Failed: " + sumByFirstLine[0] + " Success: " + sumByFirstLine[1] + " Ignored: " +
-                       sumByFirstLine[2]);
-
+            output.Add("All Tests: " + all2 + ", Failed: " + sumByFirstLine[0] + ", Success: " +
+                       sumByFirstLine[1] + ", Ignored: " + sumByFirstLine[2] + LINE + LINE);
+            
             foreach (KeyValuePair<string, List<string>> errorToTests in errorsToTests)
             {
                 int testsCounter = 1;
                 var errorName = errorToTests.Key;
                 var testNames = errorToTests.Value;
 
-                output.Add(string.Format("\n{0}: ", errorName));
+                output.Add(string.Format("{0}: {1}", errorName, LINE));
                 foreach (string testName in testNames)
                 {
-                    output.Add(string.Format("         {0}. {1}", testsCounter++, testName));
+                    output.Add(string.Format("{0}{1}. {2}{3}", "{0}",testsCounter++, testName, "{1}"));
                 }
+                output.Add(LINE);
             }
-
-            File.WriteAllLines("c:/DailyReport/output.txt", output);
+            output.Add("{2}");
             return string.Concat(output.ToArray());
         }
 
@@ -91,8 +92,9 @@ namespace Daily
                     else
                     {
                         string test = lines[i + 2].Replace("ERROR: Test failed: ", "");
-                        test += " (" + lines[0] + ")";
-                        i += linesToAddToGetError(lines, i);
+                        test = "{3}" + test + "{1}";
+                        test += "{4}" + " (" + lines[0] + ")" + "{1}";
+                        i += BuildOutputHelper.linesToAddToGetError(lines, i);
                         
                         string error = lines[i].Replace(" + ","");
                         Regex rgx = new Regex("[a-zA-Z]+\\.[a-zA-Z]+\\.");
@@ -121,41 +123,36 @@ namespace Daily
                 addToEndOfTestName = "[" + error.Replace(@"concurrent.TimeoutException: Waiter Condition: AnalyticsFetcherWaitCondition Timed out while waiting for: ", "") + "]";
                 error =  "TimeoutException: Waiter Condition: AnalyticsFetcherWaitCondition";
             }
-            if (error.Contains("concurrent.TimeoutException: Waiter Condition:  Wait condition failed. Exception: NoSuchElementException: Couldn't find notification element by predicate: "))
+            else if (error.Contains("concurrent.TimeoutException: Waiter Condition:  Wait condition failed. Exception: NoSuchElementException: Couldn't find notification element by predicate: "))
             {
                 addToEndOfTestName =
                     error.Replace("concurrent.TimeoutException: Waiter Condition:  Wait condition failed. Exception: NoSuchElementException: Couldn't find notification element by predicate: ", "")
                     .Replace(" Timed out while waiting for: get notification if shown.", "");
                 error = "TimeoutException: NoSuchElementException: Couldn't find notification element by predicate";
             }
-
-            return addToEndOfTestName;
-        }
-
-        private int linesToAddToGetError(List<string> lines, int i)
-        {
-            if (lines[i + 4].Contains(
-                "RuntimeException: Test initialization failed: Unable to provision, see the following errors"))
+            else if (error.Contains("selenium.TimeoutException: Timed out after 120 seconds waiting for visibility of Proxy element for"))
             {
-                return 8;
+                error = "selenium.TimeoutException: Timed out after 120 seconds waiting for visibility of Proxy element";
             }
+            else if (error.EndsWith(".") || error.EndsWith(":"))
+                error = error.Substring(0, error.Length - 1);
 
-            return 4;
+            return addToEndOfTestName + LINE;
         }
 
         private void SumThirdLines(string firstLine, int[] sum)
         {
             string str = firstLine;
             var match = Regex.Match(str, @".*failed: (\d+).*passed: (\d+).*ignored: (\d+).*");
-            int fa, su, ig;
             if (match.Groups.Count == 4)
             {
-                int.TryParse(match.Groups[1].ToString(), out fa);
-                int.TryParse(match.Groups[2].ToString(), out su);
-                int.TryParse(match.Groups[3].ToString(), out ig);
-                sum[FAILED] += fa;
-                sum[SUCCESS] += su;
-                sum[IGNORED] += ig;
+                int fail, success, ignore;
+                int.TryParse(match.Groups[1].ToString(), out fail);
+                int.TryParse(match.Groups[2].ToString(), out success);
+                int.TryParse(match.Groups[3].ToString(), out ignore);
+                sum[FAILED] += fail;
+                sum[SUCCESS] += success;
+                sum[IGNORED] += ignore;
             }
         }
 
