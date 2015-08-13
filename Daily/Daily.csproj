@@ -36,9 +36,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuildOutputHelper.cs" />
-    <Compile Include="MailReportBuilder.cs" />
+    <Compile Include="MessageBuilder.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="ReportBuilder.cs" />
+    <Compile Include="ReportWriter.cs" />
     <Compile Include="MailSender.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -7,7 +7,6 @@
             string msg = new MessageBuilder().Build();
             new ReportWriter().Write(msg);
             new MailSender().CreateTestMessage2(msg);
-//            new MailSender().RetryIfBusy(msg);
         }
     }
 }
