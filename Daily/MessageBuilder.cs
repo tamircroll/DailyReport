@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -7,51 +6,82 @@ using System.Text.RegularExpressions;
 
 namespace Daily
 {
-    class MessageBuilder
+    internal class MessageBuilder
     {
-        private const int FAILED = 0;
-        private const int SUCCESS = 1;
-        private const int IGNORED = 2;
-        private const string LINE = "{5}";
-
-        List<string> output = new List<string>();
+        public const string
+            START_PARAGRAPH = "{0}",
+            CLOSE_PARAGRAPH = "{1}",
+            SPAN_SMALL = "{2}",
+            SPAN_RED = "{3}",
+            SPAN_GREEN = "{4}",
+            CLOSE_SPAN = "{5}",
+            LINE = "{6}";
+        private const int FAILED = 0, SUCCESS = 1, IGNORED = 2;
+        private List<string> output = new List<string>();
 
         public string Build()
         {
-            List<List<string>> files = new List<List<string>>();
-            
-            var testsCountByResults = new List<int> { 0, 0, 0 };
+            var successTests = new List<string>();
+            List<int> actualTestsSummary = new List<int> { 0, 0, 0 };
+            var files = getAllFiles();
+            var testSummaryBySuiteCount = getAllThirdLinesSummaries(files);
+
+            output.Add(START_PARAGRAPH);
+
+            var errorsToTests = getAllFailures(files, actualTestsSummary, successTests);
+
+            addTestsSummaryToOutput("Actual count" , actualTestsSummary);
+            addTestsSummaryToOutput("By Suite", testSummaryBySuiteCount);
+            addErrorsDescriptionToOutput(errorsToTests);
+
+            output.Add(CLOSE_PARAGRAPH);
+            return string.Concat(output.ToArray());
+        }
+
+
+        private Dictionary<string, List<string>> getAllFailures(List<List<string>> files, List<int> actualTestsSummary, List<string> successTests)
+        {
             var errorsToTests = new Dictionary<string, List<string>>();
-            List<string>  passList= new List<string>();
-            int[] sumByFirstLine = { 0, 0, 0 };
+            foreach (var file in files)
+            {
+                AddFailures(file, errorsToTests, successTests, actualTestsSummary);
+            }
 
-            addFilesToList(files);
-            output.Add("{6}");
+            return errorsToTests;
+        }
 
+        private List<int> getAllThirdLinesSummaries(List<List<string>> files)
+        {
+            var testSummaryBySuiteCount = new List<int>(){0,0,0};
             foreach (var file in files)
             {
                 if (file.Count > 3)
                 {
-                    SumThirdLines(file[3], sumByFirstLine);
-                    AddFailures(file, testsCountByResults, errorsToTests, passList);
+                    addThirdLineSummary(file[3], testSummaryBySuiteCount);
                 }
             }
+            return testSummaryBySuiteCount;
+        }
 
+        private void addTestsSummaryToOutput(string title, List<int> testsCountByResults)
+        {
             int all = testsCountByResults[FAILED] + testsCountByResults[SUCCESS] + testsCountByResults[IGNORED];
-            int all2 = sumByFirstLine[FAILED] + sumByFirstLine[SUCCESS] + sumByFirstLine[IGNORED];
             int coverage = (all > 0) ? (testsCountByResults[FAILED] + testsCountByResults[SUCCESS])*100/all : 0;
             var sb = new StringBuilder();
-
+            sb.AppendFormat("{0}: ", title);
             sb.AppendFormat("All Tests: {0}, ", all);
             sb.AppendFormat("Failed: {0}, ", testsCountByResults[FAILED]);
             sb.AppendFormat("Success: {0}, ", testsCountByResults[SUCCESS]);
             sb.AppendFormat("Ignored: {0}, ", testsCountByResults[IGNORED]);
             sb.AppendFormat("Coverage: {0}%", coverage);
-            output.Add(LINE + sb + LINE);
+            output.Add(sb + LINE);
 
-            output.Add("All Tests: " + all2 + ", Failed: " + sumByFirstLine[0] + ", Success: " +
-                       sumByFirstLine[1] + ", Ignored: " + sumByFirstLine[2] + LINE + LINE);
-            
+
+        }
+
+        private void addErrorsDescriptionToOutput(Dictionary<string, List<string>> errorsToTests)
+        {
+            output.Add(LINE + LINE);
             foreach (KeyValuePair<string, List<string>> errorToTests in errorsToTests)
             {
                 int testsCounter = 1;
@@ -61,78 +91,93 @@ namespace Daily
                 output.Add(string.Format("{0}: {1}", errorName, LINE));
                 foreach (string testName in testNames)
                 {
-                    output.Add(string.Format("{0}{1}. {2}{3}", "{0}",testsCounter++, testName, "{1}"));
+                    output.Add(string.Format("{0}{1}. {2}{3}", SPAN_SMALL, testsCounter++, testName, CLOSE_SPAN));
                 }
                 output.Add(LINE);
             }
-            output.Add("{2}");
-            return string.Concat(output.ToArray());
         }
 
-        private void AddFailures(List<string> lines, List<int> testsCount, Dictionary<string, List<string>> errors, List<string> passList)
+        private void AddFailures(List<string> fileLines, Dictionary<string, List<string>> errors, List<string> passList, List<int> testsCount)
         {
-            for (int i = 0; i < lines.Count; i++)
+            for (int i = 0; i < fileLines.Count; i++)
             {
-                if (lines[i].Contains(" + Test result: Success"))
+                if (fileLines[i].Contains(" + Test result: Success"))
                 {
-                    string test = lines[i + 2];
+                    string test = fileLines[i + 2];
                     passList.Add(test);
                     testsCount[SUCCESS]++;
                 }
-                else if (lines[i].Contains("Test ignored: "))
+                else if (fileLines[i].Contains("Test ignored: "))
                 {
                     testsCount[IGNORED]++;
                 }
-                else if (lines[i].Contains(" + Test result: Fail"))
+                else if (fileLines[i].Contains(" + Test result: Fail"))
                 {
-                    if (lines[i + 5].Contains("SkipException"))
+                    if (fileLines[i + 5].Contains("SkipException"))
                     {
                         testsCount[IGNORED]++;
                     }
                     else
                     {
-                        string test = lines[i + 2].Replace("ERROR: Test failed: ", "");
-                        test = "{3}" + test + "{1}";
-                        test += "{4}" + " (" + lines[0] + ")" + "{1}";
-                        i += BuildOutputHelper.linesToAddToGetError(lines, i);
-                        
-                        string error = lines[i].Replace(" + ","");
-                        Regex rgx = new Regex("[a-zA-Z]+\\.[a-zA-Z]+\\.");
-                        error = rgx.Replace(error, ""). Replace("Test exception: ", "");
-                        test += setErrorName(ref error);
-                        if (!errors.ContainsKey(error))
-                        {
-                            errors.Add(error, new List<string>());
-                        }
-
-                        if (!errors[error].Contains(test))
-                        {
-                            testsCount[FAILED]++;
-                            errors[error].Add(test);
-                        }
+                        doIfFail(fileLines, errors, testsCount, ref i);
                     }
                 }
+            }
+        }
+
+        private void doIfFail(List<string> fileLines, Dictionary<string, List<string>> errors, List<int> testsCount, ref int i)
+        {
+            string test = fileLines[i + 2].Replace("ERROR: Test failed: ", "");
+            test = SPAN_RED + test + CLOSE_SPAN;
+            test += SPAN_GREEN + " (" + fileLines[0] + ")" + CLOSE_SPAN;
+            i += BuildOutputHelper.linesToAddToGetError(fileLines, i);
+
+            string error = fileLines[i].Replace(" + ", "");
+            Regex rgx = new Regex("[a-zA-Z]+\\.[a-zA-Z]+\\.");
+            error = rgx.Replace(error, "").Replace("Test exception: ", "");
+            test += setErrorName(ref error);
+            if (!errors.ContainsKey(error))
+            {
+                errors.Add(error, new List<string>());
+            }
+
+            if (!errors[error].Contains(test))
+            {
+                testsCount[FAILED]++;
+                errors[error].Add(test);
             }
         }
 
         private string setErrorName(ref string error)
         {
             string addToEndOfTestName = "";
-            if (error.Contains(@"concurrent.TimeoutException: Waiter Condition: AnalyticsFetcherWaitCondition Timed out while waiting for:"))
+            if (
+                error.Contains(
+                    @"concurrent.TimeoutException: Waiter Condition: AnalyticsFetcherWaitCondition Timed out while waiting for:"))
             {
-                addToEndOfTestName = "[" + error.Replace(@"concurrent.TimeoutException: Waiter Condition: AnalyticsFetcherWaitCondition Timed out while waiting for: ", "") + "]";
-                error =  "TimeoutException: Waiter Condition: AnalyticsFetcherWaitCondition";
+                addToEndOfTestName = "[" +
+                                     error.Replace(
+                                         @"concurrent.TimeoutException: Waiter Condition: AnalyticsFetcherWaitCondition Timed out while waiting for: ",
+                                         "") + "]";
+                error = "TimeoutException: Waiter Condition: AnalyticsFetcherWaitCondition";
             }
-            else if (error.Contains("concurrent.TimeoutException: Waiter Condition:  Wait condition failed. Exception: NoSuchElementException: Couldn't find notification element by predicate: "))
+            else if (
+                error.Contains(
+                    "concurrent.TimeoutException: Waiter Condition:  Wait condition failed. Exception: NoSuchElementException: Couldn't find notification element by predicate: "))
             {
                 addToEndOfTestName =
-                    error.Replace("concurrent.TimeoutException: Waiter Condition:  Wait condition failed. Exception: NoSuchElementException: Couldn't find notification element by predicate: ", "")
-                    .Replace(" Timed out while waiting for: get notification if shown.", "");
+                    error.Replace(
+                        "concurrent.TimeoutException: Waiter Condition:  Wait condition failed. Exception: NoSuchElementException: Couldn't find notification element by predicate: ",
+                        "")
+                        .Replace(" Timed out while waiting for: get notification if shown.", "");
                 error = "TimeoutException: NoSuchElementException: Couldn't find notification element by predicate";
             }
-            else if (error.Contains("selenium.TimeoutException: Timed out after 120 seconds waiting for visibility of Proxy element for"))
+            else if (
+                error.Contains(
+                    "selenium.TimeoutException: Timed out after 120 seconds waiting for visibility of Proxy element for"))
             {
-                error = "selenium.TimeoutException: Timed out after 120 seconds waiting for visibility of Proxy element";
+                error =
+                    "selenium.TimeoutException: Timed out after 120 seconds waiting for visibility of Proxy element";
             }
             else if (error.EndsWith(".") || error.EndsWith(":"))
                 error = error.Substring(0, error.Length - 1);
@@ -140,7 +185,7 @@ namespace Daily
             return addToEndOfTestName + LINE;
         }
 
-        private void SumThirdLines(string firstLine, int[] sum)
+        private void addThirdLineSummary(string firstLine, List<int> sum)
         {
             string str = firstLine;
             var match = Regex.Match(str, @".*failed: (\d+).*passed: (\d+).*ignored: (\d+).*");
@@ -160,8 +205,10 @@ namespace Daily
             }
         }
 
-        private void addFilesToList(List<List<string>> files)
+        private List<List<string>> getAllFiles()
         {
+            List<List<string>> files = new List<List<string>>();
+
             files.Add(
                 new List<string>(
                     new List<string> {"TechnicianView"}.Concat(File.ReadAllLines("c:/DailyReport/TechnicianView.txt",
@@ -178,6 +225,8 @@ namespace Daily
                 new List<string>(
                     new List<string> {"TechExpertExperienceTests"}.Concat(
                         File.ReadAllLines("c:/DailyReport/techExpertExperienceTests.txt", Encoding.UTF8))));
+
+            return files;
         }
     }
 }
