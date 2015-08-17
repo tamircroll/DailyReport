@@ -17,7 +17,7 @@ namespace Daily
             LINE = "{4}";
 
         private const int FAILED = 0, SUCCESS = 1, IGNORED = 2;
-        private List<string> output = new List<string>();
+        private readonly List<string> _output = new List<string>();
 
         public string Build()
         {
@@ -30,7 +30,7 @@ namespace Daily
             addTestsSummaryToOutput("Actual count", actualTestsSummary);
             addTestsSummaryToOutput("By Suite", testSummaryBySuiteCount);
             addErrorsDescriptionToOutput(errorsToTests);
-            return string.Concat(output.ToArray());
+            return string.Concat(_output.ToArray());
         }
 
 
@@ -40,7 +40,7 @@ namespace Daily
             var errorsToTests = new Dictionary<string, List<string>>();
             foreach (var file in files)
             {
-                AddFailures(file, errorsToTests, successTests, actualTestsSummary);
+                addFailures(file, errorsToTests, successTests, actualTestsSummary);
             }
 
             return errorsToTests;
@@ -48,7 +48,7 @@ namespace Daily
 
         private List<int> getAllSuitesTestsSummaries(List<List<string>> files)
         {
-            var testSummaryBySuiteCount = new List<int>() {0, 0, 0};
+            var testSummaryBySuiteCount = new List<int> {0, 0, 0};
             foreach (var file in files)
             {
                 if (file.Count > 3)
@@ -90,30 +90,30 @@ namespace Daily
             sb.AppendFormat("Success: {0}, ", testsCountByResults[SUCCESS]);
             sb.AppendFormat("Ignored: {0}, ", testsCountByResults[IGNORED]);
             sb.AppendFormat("Coverage: {0}%", coverage);
-            output.Add(sb + LINE);
+            _output.Add(sb + LINE);
 
 
         }
 
         private void addErrorsDescriptionToOutput(Dictionary<string, List<string>> errorsToTests)
         {
-            output.Add(LINE + LINE);
+            _output.Add(LINE + LINE);
             foreach (KeyValuePair<string, List<string>> errorToTests in errorsToTests)
             {
                 int testsCounter = 1;
                 var errorName = errorToTests.Key;
                 var testNames = errorToTests.Value;
 
-                output.Add(string.Format("{0}: {1}", errorName, LINE));
+                _output.Add(string.Format("{0}: {1}", errorName, LINE));
                 foreach (string testName in testNames)
                 {
-                    output.Add(string.Format("{0}{1}. {2}{3}", SPAN_SMALL, testsCounter++, testName, CLOSE_SPAN));
+                    _output.Add(string.Format("{0}{1}. {2}{3}", SPAN_SMALL, testsCounter++, testName, CLOSE_SPAN));
                 }
-                output.Add(LINE);
+                _output.Add(LINE);
             }
         }
 
-        private void AddFailures(List<string> fileLines, Dictionary<string, List<string>> errors, List<string> passList,
+        private void addFailures(List<string> fileLines, Dictionary<string, List<string>> errors, List<string> passList,
             List<int> testsCount)
         {
             for (int i = 0; i < fileLines.Count; i++)
@@ -151,7 +151,7 @@ namespace Daily
             i += BuildOutputHelper.linesToAddToGetError(fileLines, i);
 
             string error = fileLines[i].Replace(" + ", "");
-            Regex rgx = new Regex("[a-zA-Z]+\\.[a-zA-Z]+\\.");
+            var rgx = new Regex("[a-zA-Z]+\\.[a-zA-Z]+\\.");
             error = rgx.Replace(error, "").Replace("Test exception: ", "");
             test += setErrorName(ref error);
             if (!errors.ContainsKey(error))
@@ -205,24 +205,21 @@ namespace Daily
 
         private List<List<string>> getAllFiles()
         {
-            List<List<string>> files = new List<List<string>>();
-
-            files.Add(
+            var files = new List<List<string>>
+            {
                 new List<string>(
                     new List<string> {"TechnicianView"}.Concat(File.ReadAllLines("c:/DailyReport/TechnicianView.txt",
-                        Encoding.UTF8))));
-            files.Add(
+                        Encoding.UTF8))),
                 new List<string>(
                     new List<string> {"FirstExperience"}.Concat(File.ReadAllLines("c:/DailyReport/FirstExperience.txt",
-                        Encoding.UTF8))));
-            files.Add(
+                        Encoding.UTF8))),
                 new List<string>(
                     new List<string> {"OngoingValue"}.Concat(File.ReadAllLines("c:/DailyReport/OngoingValue.txt",
-                        Encoding.UTF8))));
-            files.Add(
+                        Encoding.UTF8))),
                 new List<string>(
                     new List<string> {"TechExpertExperienceTests"}.Concat(
-                        File.ReadAllLines("c:/DailyReport/techExpertExperienceTests.txt", Encoding.UTF8))));
+                        File.ReadAllLines("c:/DailyReport/techExpertExperienceTests.txt", Encoding.UTF8)))
+            };
 
             return files;
         }
