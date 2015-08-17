@@ -15,6 +15,7 @@ namespace Daily
             SPAN_GREEN = "{2}",
             CLOSE_SPAN = "{3}",
             LINE = "{4}";
+
         private const int FAILED = 0, SUCCESS = 1, IGNORED = 2;
         private List<string> output = new List<string>();
 
@@ -22,18 +23,19 @@ namespace Daily
         {
             var successTests = new List<string>();
             var files = getAllFiles();
-            var actualTestsSummary = new List<int> { 0, 0, 0 };
+            var actualTestsSummary = new List<int> {0, 0, 0};
             var testSummaryBySuiteCount = getAllSuitesTestsSummaries(files);
             var errorsToTests = getErrorsToTestsMap(files, actualTestsSummary, successTests);
 
-            addTestsSummaryToOutput("Actual count" , actualTestsSummary);
+            addTestsSummaryToOutput("Actual count", actualTestsSummary);
             addTestsSummaryToOutput("By Suite", testSummaryBySuiteCount);
             addErrorsDescriptionToOutput(errorsToTests);
             return string.Concat(output.ToArray());
         }
 
 
-        private Dictionary<string, List<string>> getErrorsToTestsMap(List<List<string>> files, List<int> actualTestsSummary, List<string> successTests)
+        private Dictionary<string, List<string>> getErrorsToTestsMap(List<List<string>> files,
+            List<int> actualTestsSummary, List<string> successTests)
         {
             var errorsToTests = new Dictionary<string, List<string>>();
             foreach (var file in files)
@@ -46,7 +48,7 @@ namespace Daily
 
         private List<int> getAllSuitesTestsSummaries(List<List<string>> files)
         {
-            var testSummaryBySuiteCount = new List<int>(){0,0,0};
+            var testSummaryBySuiteCount = new List<int>() {0, 0, 0};
             foreach (var file in files)
             {
                 if (file.Count > 3)
@@ -111,7 +113,8 @@ namespace Daily
             }
         }
 
-        private void AddFailures(List<string> fileLines, Dictionary<string, List<string>> errors, List<string> passList, List<int> testsCount)
+        private void AddFailures(List<string> fileLines, Dictionary<string, List<string>> errors, List<string> passList,
+            List<int> testsCount)
         {
             for (int i = 0; i < fileLines.Count; i++)
             {
@@ -139,7 +142,8 @@ namespace Daily
             }
         }
 
-        private void doIfFail(List<string> fileLines, Dictionary<string, List<string>> errors, List<int> testsCount, ref int i)
+        private void doIfFail(List<string> fileLines, Dictionary<string, List<string>> errors, List<int> testsCount,
+            ref int i)
         {
             string test = fileLines[i + 2].Replace("ERROR: Test failed: ", "");
             test = SPAN_RED + test + CLOSE_SPAN;

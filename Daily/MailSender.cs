@@ -59,9 +59,9 @@ namespace Daily
             message.Subject = "Using the SmtpClient class.";
             message.Body = msg.Replace("{0}", "<span style='font-size: 10pt'>&nbsp&nbsp&nbsp")
                 .Replace(MessageBuilder.CLOSE_SPAN, "</span>")
-                        .Replace(MessageBuilder.SPAN_RED, "<span style = 'color:red'>")
-                        .Replace(MessageBuilder.SPAN_GREEN, "<span style = 'color:green'>")
-                        .Replace(MessageBuilder.LINE, "<br>");
+                .Replace(MessageBuilder.SPAN_RED, "<span style = 'color:red'>")
+                .Replace(MessageBuilder.SPAN_GREEN, "<span style = 'color:green'>")
+                .Replace(MessageBuilder.LINE, "<br>");
             message.IsBodyHtml = true;
             // Add a carbon copy recipient.
             // MailAddress copy = new MailAddress("tamir@soluto.com");
