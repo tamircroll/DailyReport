@@ -26,8 +26,6 @@ namespace Daily
                     Subject = "Temp daily report. Date: " + DateTime.Now.ToString("dd/MM/yyy"),
                     SubjectEncoding = System.Text.Encoding.UTF8,
                     Body = msg
-                        .Replace(MessageBuilder.START_PARAGRAPH, "<p>")
-                        .Replace(MessageBuilder.CLOSE_PARAGRAPH, "</p>")
                         .Replace(MessageBuilder.SPAN_SMALL, "<span style='font-size: 10pt'>&nbsp&nbsp&nbsp")
                         .Replace(MessageBuilder.SPAN_RED, "<span style = 'color:red'>")
                         .Replace(MessageBuilder.SPAN_GREEN, "<span style = 'color:green'>")
@@ -49,9 +47,7 @@ namespace Daily
             {
                 throw ex;
             }
-
         }
-
 
 
         public void RetryIfBusy(string msg)
@@ -63,11 +59,9 @@ namespace Daily
             message.Subject = "Using the SmtpClient class.";
             message.Body = msg.Replace("{0}", "<span style='font-size: 10pt'>&nbsp&nbsp&nbsp")
                 .Replace(MessageBuilder.CLOSE_SPAN, "</span>")
-                        .Replace(MessageBuilder.CLOSE_PARAGRAPH, "</p>")
                         .Replace(MessageBuilder.SPAN_RED, "<span style = 'color:red'>")
                         .Replace(MessageBuilder.SPAN_GREEN, "<span style = 'color:green'>")
-                        .Replace(MessageBuilder.LINE, "<br>")
-                        .Replace(MessageBuilder.START_PARAGRAPH, "<p>");
+                        .Replace(MessageBuilder.LINE, "<br>");
             message.IsBodyHtml = true;
             // Add a carbon copy recipient.
             // MailAddress copy = new MailAddress("tamir@soluto.com");
