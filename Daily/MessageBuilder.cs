@@ -9,37 +9,31 @@ namespace Daily
     internal class MessageBuilder
     {
         public const string
-            START_PARAGRAPH = "{0}",
-            CLOSE_PARAGRAPH = "{1}",
-            SPAN_SMALL = "{2}",
-            SPAN_RED = "{3}",
-            SPAN_GREEN = "{4}",
-            CLOSE_SPAN = "{5}",
-            LINE = "{6}";
+
+            SPAN_SMALL = "{0}",
+            SPAN_RED = "{1}",
+            SPAN_GREEN = "{2}",
+            CLOSE_SPAN = "{3}",
+            LINE = "{4}";
         private const int FAILED = 0, SUCCESS = 1, IGNORED = 2;
         private List<string> output = new List<string>();
 
         public string Build()
         {
             var successTests = new List<string>();
-            List<int> actualTestsSummary = new List<int> { 0, 0, 0 };
             var files = getAllFiles();
-            var testSummaryBySuiteCount = getAllThirdLinesSummaries(files);
-
-            output.Add(START_PARAGRAPH);
-
-            var errorsToTests = getAllFailures(files, actualTestsSummary, successTests);
+            var actualTestsSummary = new List<int> { 0, 0, 0 };
+            var testSummaryBySuiteCount = getAllSuitesTestsSummaries(files);
+            var errorsToTests = getErrorsToTestsMap(files, actualTestsSummary, successTests);
 
             addTestsSummaryToOutput("Actual count" , actualTestsSummary);
             addTestsSummaryToOutput("By Suite", testSummaryBySuiteCount);
             addErrorsDescriptionToOutput(errorsToTests);
-
-            output.Add(CLOSE_PARAGRAPH);
             return string.Concat(output.ToArray());
         }
 
 
-        private Dictionary<string, List<string>> getAllFailures(List<List<string>> files, List<int> actualTestsSummary, List<string> successTests)
+        private Dictionary<string, List<string>> getErrorsToTestsMap(List<List<string>> files, List<int> actualTestsSummary, List<string> successTests)
         {
             var errorsToTests = new Dictionary<string, List<string>>();
             foreach (var file in files)
@@ -50,14 +44,14 @@ namespace Daily
             return errorsToTests;
         }
 
-        private List<int> getAllThirdLinesSummaries(List<List<string>> files)
+        private List<int> getAllSuitesTestsSummaries(List<List<string>> files)
         {
             var testSummaryBySuiteCount = new List<int>(){0,0,0};
             foreach (var file in files)
             {
                 if (file.Count > 3)
                 {
-                    addThirdLineSummary(file[3], testSummaryBySuiteCount);
+                    addSuiteTestsSummary(file[3], testSummaryBySuiteCount);
                 }
             }
             return testSummaryBySuiteCount;
@@ -185,7 +179,7 @@ namespace Daily
             return addToEndOfTestName + LINE;
         }
 
-        private void addThirdLineSummary(string firstLine, List<int> sum)
+        private void addSuiteTestsSummary(string firstLine, List<int> testSummaryBySuiteCount)
         {
             string str = firstLine;
             var match = Regex.Match(str, @".*failed: (\d+).*passed: (\d+).*ignored: (\d+).*");
@@ -198,10 +192,10 @@ namespace Daily
                 if (match.Groups.Count >= 4)
                 {
                     int.TryParse(match.Groups[3].ToString(), out ignore);
-                    sum[IGNORED] += ignore;
+                    testSummaryBySuiteCount[IGNORED] += ignore;
                 }
-                sum[FAILED] += fail;
-                sum[SUCCESS] += success;
+                testSummaryBySuiteCount[FAILED] += fail;
+                testSummaryBySuiteCount[SUCCESS] += success;
             }
         }
 
