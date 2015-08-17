@@ -57,6 +57,26 @@ namespace Daily
             return testSummaryBySuiteCount;
         }
 
+        private void addSuiteTestsSummary(string firstLine, List<int> testSummaryBySuiteCount)
+        {
+            string str = firstLine;
+            var match = Regex.Match(str, @".*failed: (\d+).*passed: (\d+).*ignored: (\d+).*");
+            if (match.Groups.Count < 4) match = Regex.Match(str, @".*failed: (\d+).*passed: (\d+).*");
+            if (match.Groups.Count >= 3)
+            {
+                int fail, success, ignore;
+                int.TryParse(match.Groups[1].ToString(), out fail);
+                int.TryParse(match.Groups[2].ToString(), out success);
+                if (match.Groups.Count >= 4)
+                {
+                    int.TryParse(match.Groups[3].ToString(), out ignore);
+                    testSummaryBySuiteCount[IGNORED] += ignore;
+                }
+                testSummaryBySuiteCount[FAILED] += fail;
+                testSummaryBySuiteCount[SUCCESS] += success;
+            }
+        }
+
         private void addTestsSummaryToOutput(string title, List<int> testsCountByResults)
         {
             int all = testsCountByResults[FAILED] + testsCountByResults[SUCCESS] + testsCountByResults[IGNORED];
@@ -177,26 +197,6 @@ namespace Daily
                 error = error.Substring(0, error.Length - 1);
 
             return addToEndOfTestName + LINE;
-        }
-
-        private void addSuiteTestsSummary(string firstLine, List<int> testSummaryBySuiteCount)
-        {
-            string str = firstLine;
-            var match = Regex.Match(str, @".*failed: (\d+).*passed: (\d+).*ignored: (\d+).*");
-            if (match.Groups.Count < 4) match = Regex.Match(str, @".*failed: (\d+).*passed: (\d+).*");
-            if (match.Groups.Count >= 3)
-            {
-                int fail, success, ignore;
-                int.TryParse(match.Groups[1].ToString(), out fail);
-                int.TryParse(match.Groups[2].ToString(), out success);
-                if (match.Groups.Count >= 4)
-                {
-                    int.TryParse(match.Groups[3].ToString(), out ignore);
-                    testSummaryBySuiteCount[IGNORED] += ignore;
-                }
-                testSummaryBySuiteCount[FAILED] += fail;
-                testSummaryBySuiteCount[SUCCESS] += success;
-            }
         }
 
         private List<List<string>> getAllFiles()

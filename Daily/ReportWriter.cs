@@ -18,8 +18,6 @@ namespace Daily
         public void Write(string msg)
         {
             string body = msg
-                .Replace(MessageBuilder.START_PARAGRAPH, "")
-                .Replace(MessageBuilder.CLOSE_PARAGRAPH, "")
                 .Replace(MessageBuilder.SPAN_SMALL, "   ")
                 .Replace(MessageBuilder.SPAN_RED, "")
                 .Replace(MessageBuilder.SPAN_GREEN, "")
