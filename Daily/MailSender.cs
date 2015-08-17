@@ -25,13 +25,14 @@ namespace Daily
                 {
                     Subject = "Temp daily report. Date: " + DateTime.Now.ToString("dd/MM/yyy"),
                     SubjectEncoding = System.Text.Encoding.UTF8,
-                    Body = msg.Replace("{0}", "<span style='font-size: 10pt'>&nbsp&nbsp&nbsp")
-                        .Replace("{1}", "</span>")
-                        .Replace("{2}", "</p>")
-                        .Replace("{3}", "<span style = 'color:red'>")
-                        .Replace("{4}", "<span style = 'color:green'>")
-                        .Replace("{5}", "<br>")
-                        .Replace("{6}", "<p>"),
+                    Body = msg
+                        .Replace(MessageBuilder.START_PARAGRAPH, "<p>")
+                        .Replace(MessageBuilder.CLOSE_PARAGRAPH, "</p>")
+                        .Replace(MessageBuilder.SPAN_SMALL, "<span style='font-size: 10pt'>&nbsp&nbsp&nbsp")
+                        .Replace(MessageBuilder.SPAN_RED, "<span style = 'color:red'>")
+                        .Replace(MessageBuilder.SPAN_GREEN, "<span style = 'color:green'>")
+                        .Replace(MessageBuilder.CLOSE_SPAN, "</span>")
+                        .Replace(MessageBuilder.LINE, "<br>"),
                     BodyEncoding = System.Text.Encoding.UTF8,
                     IsBodyHtml = true
                 };
@@ -61,12 +62,12 @@ namespace Daily
             // message.Subject = "Using the SmtpClient class.";
             message.Subject = "Using the SmtpClient class.";
             message.Body = msg.Replace("{0}", "<span style='font-size: 10pt'>&nbsp&nbsp&nbsp")
-                            .Replace("{1}", "</span>")
-                            .Replace("{2}", "</p>")
-                            .Replace("{3}", "<span style = 'color:red'>")
-                            .Replace("{4}", "<span style = 'color:green'>")
-                            .Replace("{5}", "<br>")
-                            .Replace("{6}", "<p>");
+                .Replace(MessageBuilder.CLOSE_SPAN, "</span>")
+                        .Replace(MessageBuilder.CLOSE_PARAGRAPH, "</p>")
+                        .Replace(MessageBuilder.SPAN_RED, "<span style = 'color:red'>")
+                        .Replace(MessageBuilder.SPAN_GREEN, "<span style = 'color:green'>")
+                        .Replace(MessageBuilder.LINE, "<br>")
+                        .Replace(MessageBuilder.START_PARAGRAPH, "<p>");
             message.IsBodyHtml = true;
             // Add a carbon copy recipient.
             // MailAddress copy = new MailAddress("tamir@soluto.com");
