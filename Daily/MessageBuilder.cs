@@ -144,15 +144,19 @@ namespace Daily
         {
             string str = firstLine;
             var match = Regex.Match(str, @".*failed: (\d+).*passed: (\d+).*ignored: (\d+).*");
-            if (match.Groups.Count == 4)
+            if (match.Groups.Count < 4) match = Regex.Match(str, @".*failed: (\d+).*passed: (\d+).*");
+            if (match.Groups.Count >= 3)
             {
                 int fail, success, ignore;
                 int.TryParse(match.Groups[1].ToString(), out fail);
                 int.TryParse(match.Groups[2].ToString(), out success);
-                int.TryParse(match.Groups[3].ToString(), out ignore);
+                if (match.Groups.Count >= 4)
+                {
+                    int.TryParse(match.Groups[3].ToString(), out ignore);
+                    sum[IGNORED] += ignore;
+                }
                 sum[FAILED] += fail;
                 sum[SUCCESS] += success;
-                sum[IGNORED] += ignore;
             }
         }
 
