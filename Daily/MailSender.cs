@@ -23,7 +23,7 @@ namespace Daily
                 var to = new MailAddress("tamir@soluto.com", "TestToName");
                 var myMail = new System.Net.Mail.MailMessage(from, to)
                 {
-                    Subject = "Temp daily report. Date: " + DateTime.Now.ToString("dd/MM/yyy"),
+                    Subject = "Automation Tests Status - " + DateTime.Now.ToString("dd/MM/yyy") +", Version: !!!!!!TEMP!!!!!",
                     SubjectEncoding = System.Text.Encoding.UTF8,
                     Body = msg
                         .Replace(MessageBuilder.SPAN_SMALL, "<span style='font-size: 10pt'>&nbsp&nbsp&nbsp")

@@ -33,11 +33,10 @@ namespace Daily
             return string.Concat(_output.ToArray());
         }
 
-
-        private Dictionary<string, List<string>> getErrorsToTestsMap(List<List<string>> files,
+        private SortedDictionary<string, List<string>> getErrorsToTestsMap(List<List<string>> files,
             List<int> actualTestsSummary, List<string> successTests)
         {
-            var errorsToTests = new Dictionary<string, List<string>>();
+            var errorsToTests = new SortedDictionary<string, List<string>>();
             foreach (var file in files)
             {
                 addFailures(file, errorsToTests, successTests, actualTestsSummary);
@@ -91,11 +90,9 @@ namespace Daily
             sb.AppendFormat("Ignored: {0}, ", testsCountByResults[IGNORED]);
             sb.AppendFormat("Coverage: {0}%", coverage);
             _output.Add(sb + LINE);
-
-
         }
 
-        private void addErrorsDescriptionToOutput(Dictionary<string, List<string>> errorsToTests)
+        private void addErrorsDescriptionToOutput(SortedDictionary<string, List<string>> errorsToTests)
         {
             _output.Add(LINE + LINE);
             foreach (KeyValuePair<string, List<string>> errorToTests in errorsToTests)
@@ -113,7 +110,7 @@ namespace Daily
             }
         }
 
-        private void addFailures(List<string> fileLines, Dictionary<string, List<string>> errors, List<string> passList,
+        private void addFailures(List<string> fileLines, SortedDictionary<string, List<string>> errors, List<string> passList,
             List<int> testsCount)
         {
             for (int i = 0; i < fileLines.Count; i++)
@@ -142,10 +139,10 @@ namespace Daily
             }
         }
 
-        private void doIfFail(List<string> fileLines, Dictionary<string, List<string>> errors, List<int> testsCount,
-            ref int i)
+        private void doIfFail(List<string> fileLines, SortedDictionary<string, List<string>> errors,
+            List<int> testsCount, ref int i)
         {
-            string test = fileLines[i + 2].Replace("ERROR: Test failed: ", "");
+            string test = fileLines[i - 1].Replace("+ Test name: ", "");
             test = SPAN_RED + test + CLOSE_SPAN;
             test += SPAN_GREEN + " (" + fileLines[0] + ")" + CLOSE_SPAN;
             i += BuildOutputHelper.linesToAddToGetError(fileLines, i);
