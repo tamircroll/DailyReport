@@ -110,7 +110,8 @@ namespace Daily
             }
         }
 
-        private void addFailures(List<string> fileLines, SortedDictionary<string, List<string>> errors, List<string> passList,
+        private void addFailures(List<string> fileLines, SortedDictionary<string, List<string>> errors,
+            List<string> passList,
             List<int> testsCount)
         {
             for (int i = 0; i < fileLines.Count; i++)
@@ -143,8 +144,7 @@ namespace Daily
             List<int> testsCount, ref int i)
         {
             string test = fileLines[i - 1].Replace("+ Test name: ", "");
-            test = SPAN_RED + test + CLOSE_SPAN;
-            test += SPAN_GREEN + " (" + fileLines[0] + ")" + CLOSE_SPAN;
+            test = string.Format("{0}{1}{2}{3} ({4}){2}", SPAN_RED, test, CLOSE_SPAN, SPAN_GREEN, fileLines[0]);
             i += BuildOutputHelper.linesToAddToGetError(fileLines, i);
 
             string error = fileLines[i].Replace(" + ", "");
