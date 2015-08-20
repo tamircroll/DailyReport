@@ -24,11 +24,11 @@ namespace Daily
             var successTests = new List<string>();
             var files = getAllFiles();
             var actualTestsSummary = new List<int> {0, 0, 0};
-            var testSummaryBySuiteCount = getAllSuitesTestsSummaries(files);
+            var testsSummaryBySuite = getAllSuitesTestsSummaries(files);
             var errorsToTests = getErrorsToTestsMap(files, actualTestsSummary, successTests);
 
             addTestsSummaryToOutput("Actual count", actualTestsSummary);
-            addTestsSummaryToOutput("By Suite", testSummaryBySuiteCount);
+            addTestsSummaryToOutput("By Suite", testsSummaryBySuite);
             addErrorsDescriptionToOutput(errorsToTests);
             return string.Concat(_output.ToArray());
         }
@@ -150,7 +150,12 @@ namespace Daily
             string error = fileLines[i].Replace(" + ", "");
             var rgx = new Regex("[a-zA-Z]+\\.[a-zA-Z]+\\.");
             error = rgx.Replace(error, "").Replace("Test exception: ", "");
-            test += setErrorName(ref error);
+            test += setErrorName(ref error, fileLines, ref i);
+            addTestToMap(errors, testsCount, error, test);
+        }
+
+        private static void addTestToMap(SortedDictionary<string, List<string>> errors, List<int> testsCount, string error, string test)
+        {
             if (!errors.ContainsKey(error))
             {
                 errors.Add(error, new List<string>());
@@ -163,7 +168,7 @@ namespace Daily
             }
         }
 
-        private string setErrorName(ref string error)
+        private string setErrorName(ref string error, List<string> fileLines, ref int i)
         {
             string addToEndOfTestName = "";
             if (
@@ -193,6 +198,15 @@ namespace Daily
             {
                 error =
                     "selenium.TimeoutException: Timed out after 120 seconds waiting for visibility of Proxy element";
+            }
+            else if (error.Contains("Unable to provision, see the following errors"))
+            {
+                error = error.Replace(", see the following errors:", ".");
+                i += 4;
+                error += fileLines[i]
+                    .Replace(
+                        "1) Error in custom provider, java.lang.Exception: Failed providing appium driver. Exception: org.openqa.selenium.WebDriverException: ",
+                        "");
             }
             else if (error.EndsWith(".") || error.EndsWith(":"))
                 error = error.Substring(0, error.Length - 1);
