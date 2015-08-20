@@ -18,6 +18,7 @@ namespace Daily
             DIV_BOLD_UNDERLINE = "{5}",
             CLOSE_DIV = "{6}";
 
+        List<int> actualTestsSummary = new List<int> { 0, 0, 0 };
 
 
         private const int FAILED = 0, SUCCESS = 1, IGNORED = 2;
@@ -25,11 +26,9 @@ namespace Daily
 
         public string Build()
         {
-            var successTests = new List<string>();
             var files = getAllFiles();
-            var actualTestsSummary = new List<int> {0, 0, 0};
             var testsSummaryBySuite = getAllSuitesTestsSummaries(files);
-            var errorsToTests = getErrorsToTestsMap(files, actualTestsSummary, successTests);
+            var errorsToTests = getErrorsToTestsMap(files);
 
             addTestsSummaryToOutput("Actual count", actualTestsSummary);
             addTestsSummaryToOutput("By Suite", testsSummaryBySuite);
@@ -40,13 +39,12 @@ namespace Daily
             return string.Concat(_output.ToArray());
         }
 
-        private SortedDictionary<string, List<string>> getErrorsToTestsMap(List<List<string>> files,
-            List<int> actualTestsSummary, List<string> successTests)
+        private SortedDictionary<string, List<string>> getErrorsToTestsMap(List<List<string>> files)
         {
             var errorsToTests = new SortedDictionary<string, List<string>>();
             foreach (var file in files)
             {
-                addFailures(file, errorsToTests, successTests, actualTestsSummary);
+                addFailures(file, errorsToTests, actualTestsSummary);
             }
 
             return errorsToTests;
@@ -117,16 +115,12 @@ namespace Daily
             }
         }
 
-        private void addFailures(List<string> fileLines, SortedDictionary<string, List<string>> errors,
-            List<string> passList,
-            List<int> testsCount)
+        private void addFailures(List<string> fileLines, SortedDictionary<string, List<string>> errors, List<int> testsCount)
         {
             for (int i = 0; i < fileLines.Count; i++)
             {
                 if (fileLines[i].Contains(" + Test result: Success"))
                 {
-                    string test = fileLines[i + 2];
-                    passList.Add(test);
                     testsCount[SUCCESS]++;
                 }
                 else if (fileLines[i].Contains("Test ignored: "))
@@ -138,6 +132,7 @@ namespace Daily
                     if (fileLines[i + 5].Contains("SkipException"))
                     {
                         testsCount[IGNORED]++;
+                        i += 5;
                     }
                     else
                     {
