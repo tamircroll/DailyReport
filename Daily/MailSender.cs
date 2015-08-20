@@ -23,14 +23,17 @@ namespace Daily
                 var to = new MailAddress("tamir@soluto.com", "TestToName");
                 var myMail = new System.Net.Mail.MailMessage(from, to)
                 {
-                    Subject = "Automation Tests Status - " + DateTime.Now.ToString("dd/MM/yyy") +", Version: !!!!!!TEMP!!!!!",
+                    Subject =
+                        "Automation Tests Status - " + DateTime.Now.ToString("dd/MM/yyy") + ", Version: !!!!!!TEMP!!!!!",
                     SubjectEncoding = System.Text.Encoding.UTF8,
                     Body = msg
                         .Replace(MessageBuilder.SPAN_SMALL, "<span style='font-size: 10pt'>&nbsp&nbsp&nbsp")
                         .Replace(MessageBuilder.SPAN_RED, "<span style = 'color:red'>")
                         .Replace(MessageBuilder.SPAN_GREEN, "<span style = 'color:green'>")
                         .Replace(MessageBuilder.CLOSE_SPAN, "</span>")
-                        .Replace(MessageBuilder.LINE, "<br>"),
+                        .Replace(MessageBuilder.LINE, "<br>")
+                        .Replace(MessageBuilder.DIV_BOLD_UNDERLINE, "<div style='text-decoration: underline; font-weight: bold;'>")
+                        .Replace(MessageBuilder.CLOSE_DIV, "</div>"),
                     BodyEncoding = System.Text.Encoding.UTF8,
                     IsBodyHtml = true
                 };

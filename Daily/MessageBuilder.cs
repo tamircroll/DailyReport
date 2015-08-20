@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,12 +10,15 @@ namespace Daily
     internal class MessageBuilder
     {
         public const string
-
             SPAN_SMALL = "{0}",
             SPAN_RED = "{1}",
             SPAN_GREEN = "{2}",
             CLOSE_SPAN = "{3}",
-            LINE = "{4}";
+            LINE = "{4}",
+            DIV_BOLD_UNDERLINE = "{5}",
+            CLOSE_DIV = "{6}";
+
+
 
         private const int FAILED = 0, SUCCESS = 1, IGNORED = 2;
         private readonly List<string> _output = new List<string>();
@@ -29,6 +33,9 @@ namespace Daily
 
             addTestsSummaryToOutput("Actual count", actualTestsSummary);
             addTestsSummaryToOutput("By Suite", testsSummaryBySuite);
+            _output.Add(String.Format("{2}{0}Issues with application:{1}{2}", DIV_BOLD_UNDERLINE, CLOSE_DIV, LINE));
+            _output.Add(String.Format("{2}{0}Automation development failures:{1}{2}", DIV_BOLD_UNDERLINE, CLOSE_DIV,
+                LINE));
             addErrorsDescriptionToOutput(errorsToTests);
             return string.Concat(_output.ToArray());
         }
@@ -154,7 +161,8 @@ namespace Daily
             addTestToMap(errors, testsCount, error, test);
         }
 
-        private static void addTestToMap(SortedDictionary<string, List<string>> errors, List<int> testsCount, string error, string test)
+        private static void addTestToMap(SortedDictionary<string, List<string>> errors, List<int> testsCount,
+            string error, string test)
         {
             if (!errors.ContainsKey(error))
             {
@@ -201,7 +209,7 @@ namespace Daily
             }
             else if (error.Contains("Unable to provision, see the following errors"))
             {
-                error = error.Replace(", see the following errors:", ".");
+                error = error.Replace(", see the following errors:", ". ");
                 i += 4;
                 error += fileLines[i]
                     .Replace(

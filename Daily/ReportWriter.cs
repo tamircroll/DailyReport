@@ -22,7 +22,9 @@ namespace Daily
                 .Replace(MessageBuilder.SPAN_RED, "")
                 .Replace(MessageBuilder.SPAN_GREEN, "")
                 .Replace(MessageBuilder.CLOSE_SPAN, "")
-                .Replace(MessageBuilder.LINE, "\n");
+                .Replace(MessageBuilder.LINE, "\n")
+                .Replace(MessageBuilder.DIV_BOLD_UNDERLINE, "")
+                .Replace(MessageBuilder.CLOSE_DIV, "");
             output.Add(body);
             File.WriteAllLines("c:/DailyReport/output.txt", output);
         }
