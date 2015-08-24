@@ -18,7 +18,7 @@ namespace Daily
             DIV_BOLD_UNDERLINE = "{5}",
             CLOSE_DIV = "{6}";
 
-        List<int> actualTestsSummary = new List<int> { 0, 0, 0 };
+        private List<int> actualTestsSummary = new List<int> {0, 0, 0};
 
 
         private const int FAILED = 0, SUCCESS = 1, IGNORED = 2;
@@ -115,7 +115,8 @@ namespace Daily
             }
         }
 
-        private void addFailures(List<string> fileLines, SortedDictionary<string, List<string>> errors, List<int> testsCount)
+        private void addFailures(List<string> fileLines, SortedDictionary<string, List<string>> errors,
+            List<int> testsCount)
         {
             for (int i = 0; i < fileLines.Count; i++)
             {
@@ -222,17 +223,18 @@ namespace Daily
             var files = new List<List<string>>
             {
                 new List<string>(
-                    new List<string> {"TechnicianView"}.Concat(File.ReadAllLines("c:/DailyReport/TechnicianView.txt",
+                    new List<string> {"TechnicianView"}.Concat(File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_Technician_View.log",
                         Encoding.UTF8))),
                 new List<string>(
-                    new List<string> {"FirstExperience"}.Concat(File.ReadAllLines("c:/DailyReport/FirstExperience.txt",
+                    new List<string> {"FirstExperience"}.Concat(File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_First_Experience.log",
                         Encoding.UTF8))),
                 new List<string>(
-                    new List<string> {"OngoingValue"}.Concat(File.ReadAllLines("c:/DailyReport/OngoingValue.txt",
+                    new List<string> {"OngoingValue"}.Concat(File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_Ongoing_Value.log",
                         Encoding.UTF8))),
                 new List<string>(
                     new List<string> {"TechExpertExperienceTests"}.Concat(
-                        File.ReadAllLines("c:/DailyReport/techExpertExperienceTests.txt", Encoding.UTF8)))
+                        File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_Tech_Expert_Experience.log",
+                        Encoding.UTF8)))
             };
 
             return files;
