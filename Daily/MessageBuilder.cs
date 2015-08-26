@@ -31,7 +31,7 @@ namespace Daily
             var errorsToTests = getErrorsToTestsMap(files);
 
             addTestsSummaryToOutput("Actual count", actualTestsSummary);
-            addTestsSummaryToOutput("By Suite", testsSummaryBySuite);
+            addTestsSummaryToOutput("By Suite ", testsSummaryBySuite);
             _output.Add(String.Format("{2}{0}Issues with application:{1}{2}", DIV_BOLD_UNDERLINE, CLOSE_DIV, LINE));
             _output.Add(String.Format("{2}{0}Automation development failures:{1}{2}", DIV_BOLD_UNDERLINE, CLOSE_DIV,
                 LINE));
@@ -89,7 +89,7 @@ namespace Daily
             int coverage = (all > 0) ? (testsCountByResults[FAILED] + testsCountByResults[SUCCESS])*100/all : 0;
             var sb = new StringBuilder();
             sb.AppendFormat("{0}: ", title);
-            sb.AppendFormat("All Tests: {0}, ", all);
+            sb.AppendFormat("Tests: {0}, ", all);
             sb.AppendFormat("Failed: {0}, ", testsCountByResults[FAILED]);
             sb.AppendFormat("Success: {0}, ", testsCountByResults[SUCCESS]);
             sb.AppendFormat("Ignored: {0}, ", testsCountByResults[IGNORED]);
@@ -120,6 +120,12 @@ namespace Daily
         {
             for (int i = 0; i < fileLines.Count; i++)
             {
+                if (fileLines[i].Contains("marked as Skipped"))
+                {
+                    testsCount[IGNORED]--;
+                    continue;
+                }
+
                 if (fileLines[i].Contains(" + Test result: Success"))
                 {
                     testsCount[SUCCESS]++;
@@ -196,24 +202,26 @@ namespace Daily
                         .Replace(" Timed out while waiting for: get notification if shown.", "");
                 error = "TimeoutException: NoSuchElementException: Couldn't find notification element by predicate";
             }
-            else if (
-                error.Contains(
-                    "selenium.TimeoutException: Timed out after 120 seconds waiting for visibility of Proxy element for"))
+            else if (error.Contains("Waiter Condition: TelemetryReceivedWaiter Timed out while waiting for:"))
             {
-                error =
-                    "selenium.TimeoutException: Timed out after 120 seconds waiting for visibility of Proxy element";
+                error = "TimeoutException: Waiter Condition: TelemetryReceivedWaiter Timed out while waiting for: Os report for device: [DeviceID]";
+            }
+            else if (
+                error.Contains("selenium.TimeoutException: Timed out after 120 seconds waiting for visibility of Proxy element for"))
+            {
+                error = "selenium.TimeoutException: Timed out after 120 seconds waiting for visibility of Proxy element";
             }
             else if (error.Contains("Unable to provision, see the following errors"))
             {
                 error = error.Replace(", see the following errors:", ". ");
                 i += 4;
                 error += fileLines[i]
-                    .Replace(
-                        "1) Error in custom provider, java.lang.Exception: Failed providing appium driver. Exception: org.openqa.selenium.WebDriverException: ",
-                        "");
+                    .Replace("1) Error in custom provider, java.lang.Exception: Failed providing appium driver. Exception: org.openqa.selenium.WebDriverException: ", "");
             }
-            else if (error.EndsWith(".") || error.EndsWith(":"))
+            if (error.EndsWith(".") || error.EndsWith(":"))
+            {
                 error = error.Substring(0, error.Length - 1);
+            }
 
             return addToEndOfTestName + LINE;
         }
@@ -223,18 +231,21 @@ namespace Daily
             var files = new List<List<string>>
             {
                 new List<string>(
-                    new List<string> {"TechnicianView"}.Concat(File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_Technician_View.log",
-                        Encoding.UTF8))),
+                    new List<string> {"TechnicianView"}.Concat(
+                        File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_Technician_View.log",
+                            Encoding.UTF8))),
                 new List<string>(
-                    new List<string> {"FirstExperience"}.Concat(File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_First_Experience.log",
-                        Encoding.UTF8))),
+                    new List<string> {"FirstExperience"}.Concat(
+                        File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_First_Experience.log",
+                            Encoding.UTF8))),
                 new List<string>(
-                    new List<string> {"OngoingValue"}.Concat(File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_Ongoing_Value.log",
-                        Encoding.UTF8))),
+                    new List<string> {"OngoingValue"}.Concat(
+                        File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_Ongoing_Value.log",
+                            Encoding.UTF8))),
                 new List<string>(
                     new List<string> {"TechExpertExperienceTests"}.Concat(
                         File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_Tech_Expert_Experience.log",
-                        Encoding.UTF8)))
+                            Encoding.UTF8)))
             };
 
             return files;
