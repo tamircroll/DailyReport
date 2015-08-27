@@ -19,7 +19,7 @@ namespace Daily
             CLOSE_DIV = "{6}",
             SPACE = "{7}";
 
-        private List<int> actualTestsSummary = new List<int> { 0, 0, 0 };
+        private List<int> actualTestsSummary = new List<int> {0, 0, 0};
         private string message;
 
         public MessageBuilder()
@@ -38,12 +38,10 @@ namespace Daily
                 .Replace(DIV_BOLD_UNDERLINE, "")
                 .Replace(CLOSE_DIV, "")
                 .Replace(SPACE, " ");
-
         }
 
         public string GetHtmlMessage()
         {
-
             return message.ToRawHtml()
                 .Replace(SPAN_SMALL, "<span style='font-size: 10pt'>")
                 .Replace(SPAN_RED, "<span style = 'color:red'>")
@@ -143,7 +141,8 @@ namespace Daily
                 _output.Add(string.Format("{0}: {1}", errorName, LINE));
                 foreach (string testName in testNames)
                 {
-                    _output.Add(string.Format("{4}{4}{4}{4}{0}{1}. {2}{3}", SPAN_SMALL, testsCounter++, testName, CLOSE_SPAN, SPACE));
+                    _output.Add(string.Format("{4}{4}{4}{4}{0}{1}. {2}{3}", SPAN_SMALL, testsCounter++, testName,
+                        CLOSE_SPAN, SPACE));
                 }
                 _output.Add(LINE);
             }

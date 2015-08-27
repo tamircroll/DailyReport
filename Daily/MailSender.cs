@@ -8,21 +8,16 @@ namespace Daily
     {
         public void SendMail(string msg)
         {
-
-            SmtpClient client = new SmtpClient("smtp");
-
-            // set smtp-client with basicAuthentication
+            var client = new SmtpClient("smtp");
             client.UseDefaultCredentials = false;
             var basicAuthenticationInfo = new NetworkCredential("soluto.local\tamir", "Qwer1234");
             client.Credentials = basicAuthenticationInfo;
 
-            // add from,to mailaddresses
             var from = new MailAddress("tamir@soluto.com", "Tamir: ");
             var to = new MailAddress("tamir@soluto.com", "TestToName");
             var myMail = new MailMessage(from, to)
             {
-                Subject =
-                    "Automation Tests Status - " + DateTime.Now.ToString("dd/MM/yyy") + ", Version: !!!!!!TEMP!!!!!",
+                Subject = "Automation Tests Status - " + DateTime.Now.ToString("dd/MM/yyy") + ", Version: !!!TEMP!!!",
                 SubjectEncoding = System.Text.Encoding.UTF8,
                 Body = msg,
                 BodyEncoding = System.Text.Encoding.UTF8,
@@ -32,7 +27,6 @@ namespace Daily
             {
                 client.Send(myMail);
             }
-
             catch (SmtpException ex)
             {
                 throw new ApplicationException
@@ -44,18 +38,17 @@ namespace Daily
             }
         }
 
-
         public void SendMailWithRetry(string msg)
         {
             var from = new MailAddress("tamir@soluto.com");
             var to = new MailAddress("tamir@soluto.com");
             var message = new MailMessage(from, to);
             message.Subject = "Automation Tests Status - " + DateTime.Now.ToString("dd/MM/yyy") +
-                              ", Version: !!!!!!TEMP!!!!!";
+                              ", Version: !!!TEMP!!!";
             message.Body = msg;
             message.IsBodyHtml = true;
 
-            SmtpClient client = new SmtpClient("smtp");
+            var client = new SmtpClient("smtp");
             // Include credentials if the server requires them.
             client.Credentials = CredentialCache.DefaultNetworkCredentials;
             Console.WriteLine("Sending an e-mail message to {0} using the SMTP host {1}.", to.Address, client.Host);
