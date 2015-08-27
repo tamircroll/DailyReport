@@ -9,15 +9,16 @@ namespace Daily
 {
     public class MessageBuilder
     {
-        public const string
-            SPAN_SMALL = "{0}",
-            SPAN_RED = "{1}",
-            SPAN_GREEN = "{2}",
-            CLOSE_SPAN = "{3}",
-            LINE = "{4}",
-            DIV_BOLD_UNDERLINE = "{5}",
-            CLOSE_DIV = "{6}",
-            SPACE = "{7}";
+        private const string
+            LINE = "{0}",
+            SPACE = "{1}",
+            SPAN_SMALL = "{2}",
+            SPAN_RED = "{3}",
+            SPAN_GREEN = "{4}",
+            CLOSE_SPAN = "{5}",
+            DIV_BOLD_UNDERLINE = "{6}",
+            CLOSE_DIV = "{7}"; 
+                                     
 
         private List<int> actualTestsSummary = new List<int> {0, 0, 0};
         private string message;
@@ -292,8 +293,8 @@ namespace Daily
         public static string ToRawHtml(this string html)
         {
             return html
-                .Replace("<", "&lt")
-                .Replace(">", "&gt");
+                .Replace("<", "&lt;")
+                .Replace(">", "&gt;");
         }
     }
 }
