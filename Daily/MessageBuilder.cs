@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace Daily
 {
-    internal class MessageBuilder
+    public class MessageBuilder
     {
         public const string
             SPAN_SMALL = "{0}",
@@ -16,15 +16,49 @@ namespace Daily
             CLOSE_SPAN = "{3}",
             LINE = "{4}",
             DIV_BOLD_UNDERLINE = "{5}",
-            CLOSE_DIV = "{6}";
+            CLOSE_DIV = "{6}",
+            SPACE = "{7}";
 
-        private List<int> actualTestsSummary = new List<int> {0, 0, 0};
+        private List<int> actualTestsSummary = new List<int> { 0, 0, 0 };
+        private string message;
 
+        public MessageBuilder()
+        {
+            message = build();
+        }
+
+        public string GetTextMessage()
+        {
+            return message
+                .Replace(SPAN_SMALL, "")
+                .Replace(SPAN_RED, "")
+                .Replace(SPAN_GREEN, "")
+                .Replace(CLOSE_SPAN, "")
+                .Replace(LINE, "\n")
+                .Replace(DIV_BOLD_UNDERLINE, "")
+                .Replace(CLOSE_DIV, "")
+                .Replace(SPACE, " ");
+
+        }
+
+        public string GetHtmlMessage()
+        {
+
+            return message.ToRawHtml()
+                .Replace(SPAN_SMALL, "<span style='font-size: 10pt'>")
+                .Replace(SPAN_RED, "<span style = 'color:red'>")
+                .Replace(SPAN_GREEN, "<span style = 'color:green'>")
+                .Replace(CLOSE_SPAN, "</span>")
+                .Replace(LINE, "<br>")
+                .Replace(DIV_BOLD_UNDERLINE, "<div style='text-decoration: underline; font-weight: bold;'>")
+                .Replace(CLOSE_DIV, "</div>")
+                .Replace(SPACE, "&nbsp");
+        }
 
         private const int FAILED = 0, SUCCESS = 1, IGNORED = 2;
         private readonly List<string> _output = new List<string>();
 
-        public string Build()
+        public string build()
         {
             var files = getAllFiles();
             var testsSummaryBySuite = getAllSuitesTestsSummaries(files);
@@ -32,10 +66,10 @@ namespace Daily
 
             addTestsSummaryToOutput("Actual count", actualTestsSummary);
             addTestsSummaryToOutput("By Suite ", testsSummaryBySuite);
-            _output.Add(String.Format("{2}{0}Issues with application:{1}{2}", DIV_BOLD_UNDERLINE, CLOSE_DIV, LINE));
-            _output.Add(String.Format("{2}{0}Automation development failures:{1}{2}", DIV_BOLD_UNDERLINE, CLOSE_DIV,
-                LINE));
+
+            _output.Add(String.Format("{2}{0}Issues with application:{1}", DIV_BOLD_UNDERLINE, CLOSE_DIV, LINE));
             addErrorsDescriptionToOutput(errorsToTests);
+            _output.Add(String.Format("{2}{0}Automation development failures:{1}", DIV_BOLD_UNDERLINE, CLOSE_DIV, LINE));
             return string.Concat(_output.ToArray());
         }
 
@@ -109,7 +143,7 @@ namespace Daily
                 _output.Add(string.Format("{0}: {1}", errorName, LINE));
                 foreach (string testName in testNames)
                 {
-                    _output.Add(string.Format("{0}{1}. {2}{3}", SPAN_SMALL, testsCounter++, testName, CLOSE_SPAN));
+                    _output.Add(string.Format("{4}{4}{4}{4}{0}{1}. {2}{3}", SPAN_SMALL, testsCounter++, testName, CLOSE_SPAN, SPACE));
                 }
                 _output.Add(LINE);
             }
@@ -204,10 +238,12 @@ namespace Daily
             }
             else if (error.Contains("Waiter Condition: TelemetryReceivedWaiter Timed out while waiting for:"))
             {
-                error = "TimeoutException: Waiter Condition: TelemetryReceivedWaiter Timed out while waiting for: Os report for device: [DeviceID]";
+                error =
+                    "TimeoutException: Waiter Condition: TelemetryReceivedWaiter Timed out while waiting for: Os report for device: [DeviceID]";
             }
             else if (
-                error.Contains("selenium.TimeoutException: Timed out after 120 seconds waiting for visibility of Proxy element for"))
+                error.Contains(
+                    "selenium.TimeoutException: Timed out after 120 seconds waiting for visibility of Proxy element for"))
             {
                 error = "selenium.TimeoutException: Timed out after 120 seconds waiting for visibility of Proxy element";
             }
@@ -216,7 +252,9 @@ namespace Daily
                 error = error.Replace(", see the following errors:", ". ");
                 i += 4;
                 error += fileLines[i]
-                    .Replace("1) Error in custom provider, java.lang.Exception: Failed providing appium driver. Exception: org.openqa.selenium.WebDriverException: ", "");
+                    .Replace(
+                        "1) Error in custom provider, java.lang.Exception: Failed providing appium driver. Exception: org.openqa.selenium.WebDriverException: ",
+                        "");
             }
             if (error.EndsWith(".") || error.EndsWith(":"))
             {
@@ -231,24 +269,32 @@ namespace Daily
             var files = new List<List<string>>
             {
                 new List<string>(
-                    new List<string> {"TechnicianView"}.Concat(
-                        File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_Technician_View.log",
+                    new List<string> {"TechnicianView"}
+                        .Concat(File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_Technician_View.log", Encoding.UTF8))),
+                new List<string>(
+                    new List<string> {"FirstExperience"}
+                        .Concat(File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_First_Experience.log",
                             Encoding.UTF8))),
                 new List<string>(
-                    new List<string> {"FirstExperience"}.Concat(
-                        File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_First_Experience.log",
-                            Encoding.UTF8))),
+                    new List<string> {"OngoingValue"}
+                        .Concat(File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_Ongoing_Value.log", Encoding.UTF8))),
                 new List<string>(
-                    new List<string> {"OngoingValue"}.Concat(
-                        File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_Ongoing_Value.log",
-                            Encoding.UTF8))),
-                new List<string>(
-                    new List<string> {"TechExpertExperienceTests"}.Concat(
-                        File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_Tech_Expert_Experience.log",
+                    new List<string> {"TechExpertExperienceTests"}
+                        .Concat(File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_Tech_Expert_Experience.log",
                             Encoding.UTF8)))
             };
 
             return files;
+        }
+    }
+
+    public static class HtmlExtensions
+    {
+        public static string ToRawHtml(this string html)
+        {
+            return html
+                .Replace("<", "&lt")
+                .Replace(">", "&gt");
         }
     }
 }

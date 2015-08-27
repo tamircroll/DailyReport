@@ -6,39 +6,31 @@ namespace Daily
 {
     internal class MailSender
     {
-        public void CreateTestMessage2(string msg)
+        public void SendMail(string msg)
         {
+
+            SmtpClient client = new SmtpClient("smtp");
+
+            // set smtp-client with basicAuthentication
+            client.UseDefaultCredentials = false;
+            var basicAuthenticationInfo = new NetworkCredential("soluto.local\tamir", "Qwer1234");
+            client.Credentials = basicAuthenticationInfo;
+
+            // add from,to mailaddresses
+            var from = new MailAddress("tamir@soluto.com", "Tamir: ");
+            var to = new MailAddress("tamir@soluto.com", "TestToName");
+            var myMail = new MailMessage(from, to)
+            {
+                Subject =
+                    "Automation Tests Status - " + DateTime.Now.ToString("dd/MM/yyy") + ", Version: !!!!!!TEMP!!!!!",
+                SubjectEncoding = System.Text.Encoding.UTF8,
+                Body = msg,
+                BodyEncoding = System.Text.Encoding.UTF8,
+                IsBodyHtml = true
+            };
             try
             {
-                SmtpClient mySmtpClient = new SmtpClient("smtp");
-
-                // set smtp-client with basicAuthentication
-                mySmtpClient.UseDefaultCredentials = false;
-                var basicAuthenticationInfo = new
-                    NetworkCredential("soluto.local\tamir", "Qwer1234");
-                mySmtpClient.Credentials = basicAuthenticationInfo;
-
-                // add from,to mailaddresses
-                var from = new MailAddress("tamir@soluto.com", "Tamir: ");
-                var to = new MailAddress("tamir@soluto.com", "TestToName");
-                var myMail = new System.Net.Mail.MailMessage(from, to)
-                {
-                    Subject =
-                        "Automation Tests Status - " + DateTime.Now.ToString("dd/MM/yyy") + ", Version: !!!!!!TEMP!!!!!",
-                    SubjectEncoding = System.Text.Encoding.UTF8,
-                    Body = msg
-                        .Replace(MessageBuilder.SPAN_SMALL, "<span style='font-size: 10pt'>&nbsp&nbsp&nbsp")
-                        .Replace(MessageBuilder.SPAN_RED, "<span style = 'color:red'>")
-                        .Replace(MessageBuilder.SPAN_GREEN, "<span style = 'color:green'>")
-                        .Replace(MessageBuilder.CLOSE_SPAN, "</span>")
-                        .Replace(MessageBuilder.LINE, "<br>")
-                        .Replace(MessageBuilder.DIV_BOLD_UNDERLINE, "<div style='text-decoration: underline; font-weight: bold;'>")
-                        .Replace(MessageBuilder.CLOSE_DIV, "</div>"),
-                    BodyEncoding = System.Text.Encoding.UTF8,
-                    IsBodyHtml = true
-                };
-
-                mySmtpClient.Send(myMail);
+                client.Send(myMail);
             }
 
             catch (SmtpException ex)
@@ -53,27 +45,20 @@ namespace Daily
         }
 
 
-        public void RetryIfBusy(string msg)
+        public void SendMailWithRetry(string msg)
         {
-            MailAddress from = new MailAddress("tamir@soluto.com");
-            MailAddress to = new MailAddress("tamir@soluto.com");
-            MailMessage message = new MailMessage(from, to);
-            // message.Subject = "Using the SmtpClient class.";
-            message.Subject = "Using the SmtpClient class.";
-            message.Body = msg.Replace("{0}", "<span style='font-size: 10pt'>&nbsp&nbsp&nbsp")
-                .Replace(MessageBuilder.CLOSE_SPAN, "</span>")
-                .Replace(MessageBuilder.SPAN_RED, "<span style = 'color:red'>")
-                .Replace(MessageBuilder.SPAN_GREEN, "<span style = 'color:green'>")
-                .Replace(MessageBuilder.LINE, "<br>");
+            var from = new MailAddress("tamir@soluto.com");
+            var to = new MailAddress("tamir@soluto.com");
+            var message = new MailMessage(from, to);
+            message.Subject = "Automation Tests Status - " + DateTime.Now.ToString("dd/MM/yyy") +
+                              ", Version: !!!!!!TEMP!!!!!";
+            message.Body = msg;
             message.IsBodyHtml = true;
-            // Add a carbon copy recipient.
-            // MailAddress copy = new MailAddress("tamir@soluto.com");
-            // message.CC.Add(copy);
+
             SmtpClient client = new SmtpClient("smtp");
             // Include credentials if the server requires them.
-            client.Credentials = (ICredentialsByHost) CredentialCache.DefaultNetworkCredentials;
-            Console.WriteLine("Sending an e-mail message to {0} using the SMTP host {1}.",
-                to.Address, client.Host);
+            client.Credentials = CredentialCache.DefaultNetworkCredentials;
+            Console.WriteLine("Sending an e-mail message to {0} using the SMTP host {1}.", to.Address, client.Host);
             try
             {
                 client.Send(message);
@@ -99,7 +84,7 @@ namespace Daily
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception caught in RetryIfBusy(): {0}",
+                Console.WriteLine("Exception caught in SendMailWithRetry(): {0}",
                     ex.ToString());
             }
         }

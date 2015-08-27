@@ -4,9 +4,9 @@
     {
         private static void Main()
         {
-            string msg = new MessageBuilder().Build();
-            new ReportWriter().Write(msg);
-            new MailSender().CreateTestMessage2(msg);
+            var msg = new MessageBuilder();
+            new ReportWriter().Write(msg.GetTextMessage());
+            new MailSender().SendMail(msg.GetHtmlMessage());
         }
     }
 }
