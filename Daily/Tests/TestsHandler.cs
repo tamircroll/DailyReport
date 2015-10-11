@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Daily.Tests
 {
@@ -58,13 +59,7 @@ namespace Daily.Tests
 
         public int getFailedCount()
         {
-            int count = 0;
-            foreach (string key in FailedTests.Keys)
-            {
-                count += FailedTests[key].Count;
-            }
-            
-            return count;
+            return FailedTests.Keys.Sum(key => FailedTests[key].Count);
         }
 
         public SortedDictionary<string, List<Test>> getIssuesWithApp()

@@ -20,7 +20,7 @@ namespace Daily
 
         public string GetTextMessage()
         {
-            return _messageBuilder._message
+            return _messageBuilder.Message
                 .Replace(SPAN_SMALL, "")
                 .Replace(SPAN_RED, "")
                 .Replace(SPAN_GREEN, "")
@@ -33,7 +33,7 @@ namespace Daily
 
         public string GetHtmlMessage()
         {
-            return _messageBuilder._message.ToRawHtml()
+            return _messageBuilder.Message.ToRawHtml()
                 .Replace(SPAN_SMALL, "<span style='font-size: 10pt'>")
                 .Replace(SPAN_RED, "<span style = 'color:red'>")
                 .Replace(SPAN_GREEN, "<span style = 'color:green'>")

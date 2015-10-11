@@ -10,11 +10,11 @@ namespace Daily
 {
     public class MessageBuilder
     {
-        public string _message;
+        public readonly string Message;
 
         public MessageBuilder()
         {
-            _message = build();
+            Message = build();
             _replacePlaceHolders = new ReplacePlaceHolders(this);
         }
 
@@ -27,30 +27,36 @@ namespace Daily
         private readonly List<string> _output = new List<string>();
         private readonly ReplacePlaceHolders _replacePlaceHolders;
 
-        public string build()
+        private string build()
         {
+            TestsHandler testsHandler = new TestsHandler();
             var files = getAllAndroidFiles();
             List<int> testsSummaryByTeamCity = getAllSuitesTestsSummaries(files);
-
-            TestsHandler testsHandler = new TestsHandler();
-
             setTestsHandler(testsHandler, files);
 
+            setOutput(testsHandler, testsSummaryByTeamCity);
+            return string.Concat(_output.ToArray());
+        }
+
+        private void setOutput(TestsHandler testsHandler, List<int> testsSummaryByTeamCity)
+        {
             addTestsSummaryToOutput("Actual count", testsHandler.getTestsCount());
             addTestsSummaryToOutput("By Suite ", testsSummaryByTeamCity);
 
-            _output.Add(String.Format("{2}{0}Issues with application:{1}", Daily.ReplacePlaceHolders.DIV_BOLD_UNDERLINE, Daily.ReplacePlaceHolders.CLOSE_DIV, Daily.ReplacePlaceHolders.LINE));
+            _output.Add(String.Format("{2}{0}Issues with application:{1}", ReplacePlaceHolders.DIV_BOLD_UNDERLINE,
+                ReplacePlaceHolders.CLOSE_DIV, ReplacePlaceHolders.LINE));
             addErrorsDescriptionToOutput(testsHandler.getIssuesWithApp());
-            _output.Add(String.Format("{2}{0}Automation development failures:{1}", Daily.ReplacePlaceHolders.DIV_BOLD_UNDERLINE, Daily.ReplacePlaceHolders.CLOSE_DIV, Daily.ReplacePlaceHolders.LINE));
+            _output.Add(String.Format("{2}{0}Automation development failures:{1}",
+                ReplacePlaceHolders.DIV_BOLD_UNDERLINE, ReplacePlaceHolders.CLOSE_DIV,
+                ReplacePlaceHolders.LINE));
             addErrorsDescriptionToOutput(testsHandler.getIssuesWithAutomation());
-            _output.Add(String.Format("{2}{0}UnKnown:{1}", Daily.ReplacePlaceHolders.DIV_BOLD_UNDERLINE, Daily.ReplacePlaceHolders.CLOSE_DIV, Daily.ReplacePlaceHolders.LINE));
+            _output.Add(String.Format("{2}{0}UnKnown:{1}", Daily.ReplacePlaceHolders.DIV_BOLD_UNDERLINE,
+                ReplacePlaceHolders.CLOSE_DIV, ReplacePlaceHolders.LINE));
             addErrorsDescriptionToOutput(testsHandler.getIssuesWithUnKnown());
-            return string.Concat(_output.ToArray());
         }
 
         private void setTestsHandler(TestsHandler testsHandler, List<List<string>> files)
         {
-            var errorsToTests = new SortedDictionary<string, List<string>>();
             foreach (var file in files)
             {
                 string suiteName = file[0];
@@ -102,12 +108,12 @@ namespace Daily
             sb.AppendFormat("Success: {0}, ", testsCountByResults[SUCCESS]);
             sb.AppendFormat("Ignored: {0}, ", testsCountByResults[IGNORED]);
             sb.AppendFormat("Coverage: {0}%", coverage);
-            _output.Add(sb + Daily.ReplacePlaceHolders.LINE);
+            _output.Add(sb + ReplacePlaceHolders.LINE);
         }
 
         private void addErrorsDescriptionToOutput(SortedDictionary<string, List<Test>> errorsToTests)
         {
-            _output.Add(Daily.ReplacePlaceHolders.LINE + Daily.ReplacePlaceHolders.LINE);
+            _output.Add(ReplacePlaceHolders.LINE + ReplacePlaceHolders.LINE);
             foreach (KeyValuePair<string, List<Test>> errorToTests in errorsToTests)
             {
                 int testsCounter = 1;
@@ -117,7 +123,8 @@ namespace Daily
                 _output.Add(string.Format("{0}: {1}", errorName, Daily.ReplacePlaceHolders.LINE));
                 foreach (Test testName in tests)
                 {
-                    _output.Add(string.Format("{4}{4}{4}{4}{0}{1}. {2}{3}", ReplacePlaceHolders.SPAN_SMALL, testsCounter++, testName, ReplacePlaceHolders.CLOSE_SPAN, ReplacePlaceHolders.SPACE));
+                    _output.Add(string.Format("{4}{4}{4}{4}{0}{1}. {2}{3}", ReplacePlaceHolders.SPAN_SMALL,
+                        testsCounter++, testName, ReplacePlaceHolders.CLOSE_SPAN, ReplacePlaceHolders.SPACE));
                 }
                 _output.Add(ReplacePlaceHolders.LINE);
             }
@@ -133,11 +140,11 @@ namespace Daily
                 }
 
                 if (!fileLines[i].StartsWith(" Test name: ")) continue;
-                
+
                 i += 2;
                 if (fileLines[i].Contains("Success"))
                 {
-                    testsHandler.addPassed(new Test(fileLines[i] + i, suiteName)); ;
+                    testsHandler.addPassed(new Test(fileLines[i] + i, suiteName));
                 }
 
                 else if (fileLines[i].Contains("Fail"))
@@ -159,14 +166,15 @@ namespace Daily
         private void doIfFail(List<string> fileLines, TestsHandler testsHandler, string suiteName, ref int i)
         {
             string testName = fileLines[i - 6].Replace(" Test name: ", "");
-            testName = string.Format("{0}{1}{2}{3} ({4}){2}", Daily.ReplacePlaceHolders.SPAN_RED, testName, Daily.ReplacePlaceHolders.CLOSE_SPAN, Daily.ReplacePlaceHolders.SPAN_GREEN, fileLines[0]);
+            testName = string.Format("{0}{1}{2}{3} ({4}){2}", Daily.ReplacePlaceHolders.SPAN_RED, testName,
+                ReplacePlaceHolders.CLOSE_SPAN, ReplacePlaceHolders.SPAN_GREEN, fileLines[0]);
 
             string error = fileLines[i];
-            testName += setErrorName(ref error, fileLines, ref i);
+            testName += setErrorNameAndGetEndOfTestName(ref error, fileLines, ref i);
             testsHandler.addFailure(error, new Test(testName, suiteName));
         }
 
-        private string setErrorName(ref string error, List<string> fileLines, ref int i)
+        private string setErrorNameAndGetEndOfTestName(ref string error, List<string> fileLines, ref int i)
         {
             string addToEndOfTestName = "";
             if (
@@ -214,7 +222,8 @@ namespace Daily
             {
                 i++;
                 int maxLinesToAdd = i + 3;
-                while (!fileLines[i].Contains("Browser video download") && !fileLines[i].Contains("Test artifacts path:") && i < maxLinesToAdd)
+                while (!fileLines[i].Contains("Browser video download") &&
+                       !fileLines[i].Contains("Test artifacts path:") && i < maxLinesToAdd)
                 {
                     error += " " + fileLines[i++];
                 }
@@ -224,7 +233,7 @@ namespace Daily
                 error = error.Substring(0, error.Length - 1);
             }
 
-            return addToEndOfTestName + Daily.ReplacePlaceHolders.LINE;
+            return addToEndOfTestName + ReplacePlaceHolders.LINE;
         }
 
         private List<List<string>> getAllAndroidFiles()
@@ -249,24 +258,7 @@ namespace Daily
 
             return files;
         }
-
-
-        private List<List<string>> getAllIosFiles()
-        {
-            var files = new List<List<string>>
-            {
-//                new List<string>(
-//                    new List<string> {"First Experience - IOS"}
-//                        .Concat(File.ReadAllLines("c:/DailyReport/IOS/Soluto_Home_iOS_First_Experience.log", Encoding.UTF8))),
-                new List<string>(
-                    new List<string> {"Tech Expert Experience - IOS"}
-                        .Concat(File.ReadAllLines("c:/DailyReport/IOS/Soluto_Home_iOS_Tech_Expert_Experience.log", Encoding.UTF8))),
-                
-            };
-            return files;
-        }
     }
-
 
     public static class HtmlExtensions
     {
