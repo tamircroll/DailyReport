@@ -4,83 +4,58 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Daily.Tests;
 
 namespace Daily
 {
     public class MessageBuilder
     {
-        private const string
-            LINE = "{0}",
-            SPACE = "{1}",
-            SPAN_SMALL = "{2}",
-            SPAN_RED = "{3}",
-            SPAN_GREEN = "{4}",
-            CLOSE_SPAN = "{5}",
-            DIV_BOLD_UNDERLINE = "{6}",
-            CLOSE_DIV = "{7}"; 
-                                     
-
-        private List<int> actualTestsSummary = new List<int> {0, 0, 0};
-        private string message;
+        public string _message;
 
         public MessageBuilder()
         {
-            message = build();
+            _message = build();
+            _replacePlaceHolders = new ReplacePlaceHolders(this);
         }
 
-        public string GetTextMessage()
+        public ReplacePlaceHolders ReplacePlaceHolders
         {
-            return message
-                .Replace(SPAN_SMALL, "")
-                .Replace(SPAN_RED, "")
-                .Replace(SPAN_GREEN, "")
-                .Replace(CLOSE_SPAN, "")
-                .Replace(LINE, "\n")
-                .Replace(DIV_BOLD_UNDERLINE, "")
-                .Replace(CLOSE_DIV, "")
-                .Replace(SPACE, " ");
-        }
-
-        public string GetHtmlMessage()
-        {
-            return message.ToRawHtml()
-                .Replace(SPAN_SMALL, "<span style='font-size: 10pt'>")
-                .Replace(SPAN_RED, "<span style = 'color:red'>")
-                .Replace(SPAN_GREEN, "<span style = 'color:green'>")
-                .Replace(CLOSE_SPAN, "</span>")
-                .Replace(LINE, "<br>")
-                .Replace(DIV_BOLD_UNDERLINE, "<div style='text-decoration: underline; font-weight: bold;'>")
-                .Replace(CLOSE_DIV, "</div>")
-                .Replace(SPACE, "&nbsp");
+            get { return _replacePlaceHolders; }
         }
 
         private const int FAILED = 0, SUCCESS = 1, IGNORED = 2;
         private readonly List<string> _output = new List<string>();
+        private readonly ReplacePlaceHolders _replacePlaceHolders;
 
         public string build()
         {
-            var files = getAllFiles();
-            var testsSummaryBySuite = getAllSuitesTestsSummaries(files);
-            var errorsToTests = getErrorsToTestsMap(files);
+            var files = getAllAndroidFiles();
+            List<int> testsSummaryByTeamCity = getAllSuitesTestsSummaries(files);
 
-            addTestsSummaryToOutput("Actual count", actualTestsSummary);
-            addTestsSummaryToOutput("By Suite ", testsSummaryBySuite);
+            TestsHandler testsHandler = new TestsHandler();
 
-            _output.Add(String.Format("{2}{0}Issues with application:{1}", DIV_BOLD_UNDERLINE, CLOSE_DIV, LINE));
-            addErrorsDescriptionToOutput(errorsToTests);
-            _output.Add(String.Format("{2}{0}Automation development failures:{1}", DIV_BOLD_UNDERLINE, CLOSE_DIV, LINE));
+            setTestsHandler(testsHandler, files);
+
+            addTestsSummaryToOutput("Actual count", testsHandler.getTestsCount());
+            addTestsSummaryToOutput("By Suite ", testsSummaryByTeamCity);
+
+            _output.Add(String.Format("{2}{0}Issues with application:{1}", Daily.ReplacePlaceHolders.DIV_BOLD_UNDERLINE, Daily.ReplacePlaceHolders.CLOSE_DIV, Daily.ReplacePlaceHolders.LINE));
+            addErrorsDescriptionToOutput(testsHandler.getIssuesWithApp());
+            _output.Add(String.Format("{2}{0}Automation development failures:{1}", Daily.ReplacePlaceHolders.DIV_BOLD_UNDERLINE, Daily.ReplacePlaceHolders.CLOSE_DIV, Daily.ReplacePlaceHolders.LINE));
+            addErrorsDescriptionToOutput(testsHandler.getIssuesWithAutomation());
+            _output.Add(String.Format("{2}{0}UnKnown:{1}", Daily.ReplacePlaceHolders.DIV_BOLD_UNDERLINE, Daily.ReplacePlaceHolders.CLOSE_DIV, Daily.ReplacePlaceHolders.LINE));
+            addErrorsDescriptionToOutput(testsHandler.getIssuesWithUnKnown());
             return string.Concat(_output.ToArray());
         }
 
-        private SortedDictionary<string, List<string>> getErrorsToTestsMap(List<List<string>> files)
+        private void setTestsHandler(TestsHandler testsHandler, List<List<string>> files)
         {
             var errorsToTests = new SortedDictionary<string, List<string>>();
             foreach (var file in files)
             {
-                addFailures(file, errorsToTests, actualTestsSummary);
+                string suiteName = file[0];
+                addSuiteToTestsHandler(file, testsHandler, suiteName);
             }
-
-            return errorsToTests;
         }
 
         private List<int> getAllSuitesTestsSummaries(List<List<string>> files)
@@ -127,89 +102,68 @@ namespace Daily
             sb.AppendFormat("Success: {0}, ", testsCountByResults[SUCCESS]);
             sb.AppendFormat("Ignored: {0}, ", testsCountByResults[IGNORED]);
             sb.AppendFormat("Coverage: {0}%", coverage);
-            _output.Add(sb + LINE);
+            _output.Add(sb + Daily.ReplacePlaceHolders.LINE);
         }
 
-        private void addErrorsDescriptionToOutput(SortedDictionary<string, List<string>> errorsToTests)
+        private void addErrorsDescriptionToOutput(SortedDictionary<string, List<Test>> errorsToTests)
         {
-            _output.Add(LINE + LINE);
-            foreach (KeyValuePair<string, List<string>> errorToTests in errorsToTests)
+            _output.Add(Daily.ReplacePlaceHolders.LINE + Daily.ReplacePlaceHolders.LINE);
+            foreach (KeyValuePair<string, List<Test>> errorToTests in errorsToTests)
             {
                 int testsCounter = 1;
                 var errorName = errorToTests.Key;
-                var testNames = errorToTests.Value;
+                var tests = errorToTests.Value;
 
-                _output.Add(string.Format("{0}: {1}", errorName, LINE));
-                foreach (string testName in testNames)
+                _output.Add(string.Format("{0}: {1}", errorName, Daily.ReplacePlaceHolders.LINE));
+                foreach (Test testName in tests)
                 {
-                    _output.Add(string.Format("{4}{4}{4}{4}{0}{1}. {2}{3}", SPAN_SMALL, testsCounter++, testName,
-                        CLOSE_SPAN, SPACE));
+                    _output.Add(string.Format("{4}{4}{4}{4}{0}{1}. {2}{3}", ReplacePlaceHolders.SPAN_SMALL, testsCounter++, testName, ReplacePlaceHolders.CLOSE_SPAN, ReplacePlaceHolders.SPACE));
                 }
-                _output.Add(LINE);
+                _output.Add(ReplacePlaceHolders.LINE);
             }
         }
 
-        private void addFailures(List<string> fileLines, SortedDictionary<string, List<string>> errors,
-            List<int> testsCount)
+        private void addSuiteToTestsHandler(List<string> fileLines, TestsHandler testsHandler, string suiteName)
         {
             for (int i = 0; i < fileLines.Count; i++)
             {
-                if (fileLines[i].Contains("marked as Skipped"))
+                if (fileLines[i].Contains("] Test ignored:") || fileLines[i].Contains("marked as Skipped"))
                 {
-                    testsCount[IGNORED]--;
-                    continue;
+                    testsHandler.addIgnored(new Test(fileLines[i] + i, suiteName));
                 }
 
-                if (fileLines[i].Contains(" + Test result: Success"))
+                if (!fileLines[i].StartsWith(" Test name: ")) continue;
+                
+                i += 2;
+                if (fileLines[i].Contains("Success"))
                 {
-                    testsCount[SUCCESS]++;
+                    testsHandler.addPassed(new Test(fileLines[i] + i, suiteName)); ;
                 }
-                else if (fileLines[i].Contains("Test ignored: "))
+
+                else if (fileLines[i].Contains("Fail"))
                 {
-                    testsCount[IGNORED]++;
-                }
-                else if (fileLines[i].Contains(" + Test result: Fail"))
-                {
-                    if (fileLines[i + 5].Contains("SkipException"))
+                    i += 4;
+                    if (fileLines[i].Contains("SkipException"))
                     {
-                        testsCount[IGNORED]++;
+                        testsHandler.addIgnored(new Test(fileLines[i] + i, suiteName));
                         i += 5;
                     }
                     else
                     {
-                        doIfFail(fileLines, errors, testsCount, ref i);
+                        doIfFail(fileLines, testsHandler, suiteName, ref i);
                     }
                 }
             }
         }
 
-        private void doIfFail(List<string> fileLines, SortedDictionary<string, List<string>> errors,
-            List<int> testsCount, ref int i)
+        private void doIfFail(List<string> fileLines, TestsHandler testsHandler, string suiteName, ref int i)
         {
-            string test = fileLines[i - 1].Replace("+ Test name: ", "");
-            test = string.Format("{0}{1}{2}{3} ({4}){2}", SPAN_RED, test, CLOSE_SPAN, SPAN_GREEN, fileLines[0]);
-            i += BuildOutputHelper.linesToAddToGetError(fileLines, i);
+            string testName = fileLines[i - 6].Replace(" Test name: ", "");
+            testName = string.Format("{0}{1}{2}{3} ({4}){2}", Daily.ReplacePlaceHolders.SPAN_RED, testName, Daily.ReplacePlaceHolders.CLOSE_SPAN, Daily.ReplacePlaceHolders.SPAN_GREEN, fileLines[0]);
 
-            string error = fileLines[i].Replace(" + ", "");
-            var rgx = new Regex("[a-zA-Z]+\\.[a-zA-Z]+\\.");
-            error = rgx.Replace(error, "").Replace("Test exception: ", "");
-            test += setErrorName(ref error, fileLines, ref i);
-            addTestToMap(errors, testsCount, error, test);
-        }
-
-        private static void addTestToMap(SortedDictionary<string, List<string>> errors, List<int> testsCount,
-            string error, string test)
-        {
-            if (!errors.ContainsKey(error))
-            {
-                errors.Add(error, new List<string>());
-            }
-
-            if (!errors[error].Contains(test))
-            {
-                testsCount[FAILED]++;
-                errors[error].Add(test);
-            }
+            string error = fileLines[i];
+            testName += setErrorName(ref error, fileLines, ref i);
+            testsHandler.addFailure(error, new Test(testName, suiteName));
         }
 
         private string setErrorName(ref string error, List<string> fileLines, ref int i)
@@ -256,15 +210,24 @@ namespace Daily
                         "1) Error in custom provider, java.lang.Exception: Failed providing appium driver. Exception: org.openqa.selenium.WebDriverException: ",
                         "");
             }
-            if (error.EndsWith(".") || error.EndsWith(":"))
+            else
+            {
+                i++;
+                int maxLinesToAdd = i + 3;
+                while (!fileLines[i].Contains("Browser video download") && !fileLines[i].Contains("Test artifacts path:") && i < maxLinesToAdd)
+                {
+                    error += " " + fileLines[i++];
+                }
+            }
+            while (error.EndsWith(".") || error.EndsWith(":") || error.EndsWith(" "))
             {
                 error = error.Substring(0, error.Length - 1);
             }
 
-            return addToEndOfTestName + LINE;
+            return addToEndOfTestName + Daily.ReplacePlaceHolders.LINE;
         }
 
-        private List<List<string>> getAllFiles()
+        private List<List<string>> getAllAndroidFiles()
         {
             var files = new List<List<string>>
             {
@@ -286,7 +249,24 @@ namespace Daily
 
             return files;
         }
+
+
+        private List<List<string>> getAllIosFiles()
+        {
+            var files = new List<List<string>>
+            {
+//                new List<string>(
+//                    new List<string> {"First Experience - IOS"}
+//                        .Concat(File.ReadAllLines("c:/DailyReport/IOS/Soluto_Home_iOS_First_Experience.log", Encoding.UTF8))),
+                new List<string>(
+                    new List<string> {"Tech Expert Experience - IOS"}
+                        .Concat(File.ReadAllLines("c:/DailyReport/IOS/Soluto_Home_iOS_Tech_Expert_Experience.log", Encoding.UTF8))),
+                
+            };
+            return files;
+        }
     }
+
 
     public static class HtmlExtensions
     {

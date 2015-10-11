@@ -36,10 +36,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuildOutputHelper.cs" />
+    <Compile Include="IssueWith.cs" />
+    <Compile Include="ReplacePlaceHolders.cs" />
     <Compile Include="MessageBuilder.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ReportWriter.cs" />
     <Compile Include="MailSender.cs" />
+    <Compile Include="Tests\IssueWithFactory.cs" />
+    <Compile Include="Tests\Test.cs" />
+    <Compile Include="Tests\TestsHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
