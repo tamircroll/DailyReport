@@ -17,7 +17,7 @@ namespace Daily.Tests
             return issueWithApp.Any(msg.Contains);
         }
 
-        static private readonly List<string> IssueWithApp = new List<string>
+        private static readonly List<string> IssueWithApp = new List<string>
         {
             "Timed out while waiting for: App ExDialer should be presented but it doesn't",
             "Couldn't find notification element by predicate:",
