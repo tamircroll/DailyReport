@@ -27,6 +27,11 @@ namespace Daily.Tests
             "PageLoadException: Page object of type",
             "waiting for: Typing Gesture Shown On User View Wait Condition",
             "AssertionError",
+            "ms for device status: Online",
+            "BooleanWaitCondition Timed out while waiting for",
+            "DeviceViewLoadedWaiter Timed out while",
+            "TelemetryReceivedWaiter Timed out while waiting",
+            "Brightness toggle wasn't visible after",
         };
 
         static private readonly List<string> IssueWithAutomationPlatform = new List<string>
@@ -35,6 +40,7 @@ namespace Daily.Tests
             "Executed SSH Command failed on client",
             "Not logged in to playstore",
             "java.lang.NullPointerException",
+            "WebDriverException",
         };
 
     }
