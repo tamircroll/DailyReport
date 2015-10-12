@@ -170,11 +170,12 @@ namespace Daily
                 ReplacePlaceHolders.CLOSE_SPAN, ReplacePlaceHolders.SPAN_GREEN, fileLines[0]);
 
             string error = fileLines[i];
-            testName += setErrorNameAndGetEndOfTestName(ref error, fileLines, ref i);
+            testName += GetEndOfTestName(ref error, fileLines, ref i);
+            setErrorName(ref error, fileLines, ref i);
             testsHandler.addFailure(error, new Test(testName, suiteName));
         }
 
-        private string setErrorNameAndGetEndOfTestName(ref string error, List<string> fileLines, ref int i)
+        private string GetEndOfTestName(ref string error, List<string> fileLines, ref int i)
         {
             string addToEndOfTestName = "";
             if (
@@ -185,7 +186,6 @@ namespace Daily
                                      error.Replace(
                                          @"concurrent.TimeoutException: Waiter Condition: AnalyticsFetcherWaitCondition Timed out while waiting for: ",
                                          "") + "]";
-                error = "TimeoutException: Waiter Condition: AnalyticsFetcherWaitCondition";
             }
             else if (
                 error.Contains(
@@ -196,12 +196,28 @@ namespace Daily
                         "concurrent.TimeoutException: Waiter Condition:  Wait condition failed. Exception: NoSuchElementException: Couldn't find notification element by predicate: ",
                         "")
                         .Replace(" Timed out while waiting for: get notification if shown.", "");
+            }
+
+            return addToEndOfTestName + ReplacePlaceHolders.LINE;
+        }
+
+        private void setErrorName(ref string error, List<string> fileLines, ref int i)
+        {
+            if (
+                error.Contains(
+                    @"concurrent.TimeoutException: Waiter Condition: AnalyticsFetcherWaitCondition Timed out while waiting for:"))
+            {
+                error = "TimeoutException: Waiter Condition: AnalyticsFetcherWaitCondition";
+            }
+            else if (
+                error.Contains(
+                    "concurrent.TimeoutException: Waiter Condition:  Wait condition failed. Exception: NoSuchElementException: Couldn't find notification element by predicate: "))
+            {
                 error = "TimeoutException: NoSuchElementException: Couldn't find notification element by predicate";
             }
             else if (error.Contains("Waiter Condition: TelemetryReceivedWaiter Timed out while waiting for:"))
             {
-                error =
-                    "TimeoutException: Waiter Condition: TelemetryReceivedWaiter Timed out while waiting for: Os report for device: [DeviceID]";
+                error = "TimeoutException: Waiter Condition: TelemetryReceivedWaiter Timed out while waiting for: Os report for device: [DeviceID]";
             }
             else if (
                 error.Contains(
@@ -232,8 +248,6 @@ namespace Daily
             {
                 error = error.Substring(0, error.Length - 1);
             }
-
-            return addToEndOfTestName + ReplacePlaceHolders.LINE;
         }
 
         private List<List<string>> getAllAndroidFiles()
@@ -247,9 +261,9 @@ namespace Daily
                     new List<string> {"FirstExperience"}
                         .Concat(File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_First_Experience.log",
                             Encoding.UTF8))),
-                new List<string>(
-                    new List<string> {"OngoingValue"}
-                        .Concat(File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_Ongoing_Value.log", Encoding.UTF8))),
+//                new List<string>(
+//                    new List<string> {"OngoingValue"}
+//                        .Concat(File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_Ongoing_Value.log", Encoding.UTF8))),
                 new List<string>(
                     new List<string> {"TechExpertExperienceTests"}
                         .Concat(File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_Tech_Expert_Experience.log",
