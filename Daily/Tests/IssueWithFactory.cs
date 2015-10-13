@@ -37,6 +37,7 @@ namespace Daily.Tests
             "AnalyticsFetcherWaitCondition",
             "ConfigurationChangedOnDeviceWaiter Wait condition failed. Exception: java.lang.Exception:",
             "Timed out while waiting for: Auto Brightness Setting Waiter",
+
         };
 
         static private readonly List<string> IssueWithAutomationPlatform = new List<string>
@@ -48,6 +49,5 @@ namespace Daily.Tests
             "WebDriverException",
 
         };
-
     }
 }

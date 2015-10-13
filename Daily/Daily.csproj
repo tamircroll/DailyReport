@@ -36,7 +36,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Annotations.cs" />
-    <Compile Include="BuildOutputHelper.cs" />
     <Compile Include="IssueWith.cs" />
     <Compile Include="ReplacePlaceHolders.cs" />
     <Compile Include="MessageBuilder.cs" />
