@@ -32,6 +32,11 @@ namespace Daily.Tests
             "DeviceViewLoadedWaiter Timed out while",
             "TelemetryReceivedWaiter Timed out while waiting",
             "Brightness toggle wasn't visible after",
+            "waiting for install addon button to become clickable",
+            "Bluetooth toggle wasn't visible after ",
+            "AnalyticsFetcherWaitCondition",
+            "ConfigurationChangedOnDeviceWaiter Wait condition failed. Exception: java.lang.Exception:",
+            "Timed out while waiting for: Auto Brightness Setting Waiter",
         };
 
         static private readonly List<string> IssueWithAutomationPlatform = new List<string>
@@ -41,6 +46,7 @@ namespace Daily.Tests
             "Not logged in to playstore",
             "java.lang.NullPointerException",
             "WebDriverException",
+
         };
 
     }
