@@ -47,6 +47,7 @@
     <Compile Include="Tests\Test.cs" />
     <Compile Include="Tests\TestHandler.cs" />
     <Compile Include="Tests\TestsHandler.cs" />
+    <Compile Include="VersionsHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

@@ -6,7 +6,7 @@
         {
             var msg = new MessageBuilder();
             new ReportWriter().Write(msg.ReplacePlaceHolders.GetTextMessage());
-//            new MailSender().SendMail(msg.ReplacePlaceHolders.GetHtmlMessage());
+            new MailSender().SendMail(msg.ReplacePlaceHolders.GetHtmlMessage());
         }
     }
 }
