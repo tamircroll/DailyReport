@@ -30,11 +30,44 @@ namespace Daily
         {
             TestsHandler testsHandler = new TestsHandler();
             var files = new FilesHandler().getAllAndroidFiles();
+            List<string> suitesVersions = getsuitesVersions(files);
+            _output.AddRange(suitesVersions);
             List<int> testsSummaryByTeamCity = getAllSuitesTestsSummaries(files);
             setTestsHandler(testsHandler, files);
 
             setOutput(testsHandler, testsSummaryByTeamCity);
             return string.Concat(_output.ToArray());
+        }
+
+        private List<string> getsuitesVersions(List<List<string>> files)
+        {
+            List<string> suitesVersions = new List<string>();
+            foreach (List<string> file in files)
+            {
+                string temp = file[0];
+                temp += ": " + getVersions(file);
+                suitesVersions.Add(temp + Environment.NewLine);
+            }
+            suitesVersions.Add(Environment.NewLine);
+            return suitesVersions;
+        }
+
+        private string getVersions(List<string> file)
+        {
+            string toReturn = "";
+            Regex r = new Regex(@"\[[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\] :	 \[Step 1/2\] ([0-9]\.[0-9]\.[0-9][0-9][0-9]\.[0-9])", RegexOptions.IgnoreCase);
+            Match m = null;
+            foreach (string line in file)
+            {
+                m = r.Match(line);
+                if (m.Success)
+                {
+                    toReturn = line;
+                    break;
+                }
+            }
+
+            return m.Groups[1].ToString();
         }
 
         private void setOutput(TestsHandler testsHandler, List<int> testsSummaryByTeamCity)
