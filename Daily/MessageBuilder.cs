@@ -250,6 +250,10 @@ namespace Daily
             {
                 error = "Test exception: java.lang.RuntimeException: Test initialization failed: java.util.concurrent.ExecutionException: java.lang.RuntimeException: org.openqa.selenium.WebDriverException: Error forwarding the new session Error forwarding the request Connection reset Command duration or timeout";
             }
+            else if (error.Contains("WebDriverException: The path to the driver executable must be set by the webdriver.chrome.driver system property; for more information, see https://github.com/SeleniumHQ/selenium/wiki/ChromeDriver. "))
+            {
+                error = "WebDriverException: The path to the driver executable must be set by the webdriver.chrome.driver system property; for more information, see https://github.com/SeleniumHQ/selenium/wiki/ChromeDriver. ";
+            }
             else
             {
                 i++;
