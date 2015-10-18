@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Daily.Exceptions;
 using Daily.Tests;
 
 namespace Daily
@@ -30,7 +29,7 @@ namespace Daily
         private string build()
         {
             TestsHandler testsHandler = new TestsHandler();
-            var files = getAllAndroidFiles();
+            var files = new FilesHandler().getAllAndroidFiles();
             List<int> testsSummaryByTeamCity = getAllSuitesTestsSummaries(files);
             setTestsHandler(testsHandler, files);
 
@@ -170,127 +169,9 @@ namespace Daily
                 ReplacePlaceHolders.CLOSE_SPAN, ReplacePlaceHolders.SPAN_GREEN, fileLines[0]);
 
             string error = fileLines[i];
-            testName += GetEndOfTestName(ref error, fileLines, ref i);
-            setErrorName(ref error, fileLines, ref i);
+            testName += TestHandler.GetEndOfTestName(ref error, fileLines, ref i);
+            ErrorHandler.setErrorName(ref error, fileLines, ref i);
             testsHandler.addFailure(error, new Test(testName, suiteName));
-        }
-
-        private string GetEndOfTestName(ref string error, List<string> fileLines, ref int i)
-        {
-            string addToEndOfTestName = "";
-            if (
-                error.Contains(
-                    @"concurrent.TimeoutException: Waiter Condition: AnalyticsFetcherWaitCondition Timed out while waiting for:"))
-            {
-                addToEndOfTestName = "[" +
-                                     error.Replace(
-                                         @"concurrent.TimeoutException: Waiter Condition: AnalyticsFetcherWaitCondition Timed out while waiting for: ",
-                                         "") + "]";
-            }
-            else if (
-                error.Contains(
-                    "concurrent.TimeoutException: Waiter Condition:  Wait condition failed. Exception: NoSuchElementException: Couldn't find notification element by predicate: "))
-            {
-                addToEndOfTestName =
-                    error.Replace(
-                        "concurrent.TimeoutException: Waiter Condition:  Wait condition failed. Exception: NoSuchElementException: Couldn't find notification element by predicate: ",
-                        "")
-                        .Replace(" Timed out while waiting for: get notification if shown.", "");
-            }
-
-            return addToEndOfTestName + ReplacePlaceHolders.LINE;
-        }
-
-        private void setErrorName(ref string error, List<string> fileLines, ref int i)
-        {
-            if (
-                error.Contains(
-                    @"concurrent.TimeoutException: Waiter Condition: AnalyticsFetcherWaitCondition Timed out while waiting for:"))
-            {
-                error = "TimeoutException: Waiter Condition: AnalyticsFetcherWaitCondition";
-            }
-            else if (
-                error.Contains(
-                    "concurrent.TimeoutException: Waiter Condition:  Wait condition failed. Exception: NoSuchElementException: Couldn't find notification element by predicate: "))
-            {
-                error = "TimeoutException: NoSuchElementException: Couldn't find notification element by predicate";
-            }
-            else if (error.Contains("Waiter Condition: TelemetryReceivedWaiter Timed out while waiting for:"))
-            {
-                error =
-                    "TimeoutException: Waiter Condition: TelemetryReceivedWaiter Timed out while waiting for: Os report for device: [DeviceID]";
-            }
-            else if (
-                error.Contains(
-                    "selenium.TimeoutException: Timed out after 120 seconds waiting for visibility of Proxy element for"))
-            {
-                error = "selenium.TimeoutException: Timed out after 120 seconds waiting for visibility of Proxy element";
-            }
-            else if (error.Contains("Unable to provision, see the following errors"))
-            {
-                error = error.Replace(", see the following errors:", ". ");
-                i += 4;
-                error += fileLines[i]
-                    .Replace(
-                        "1) Error in custom provider, java.lang.Exception: Failed providing appium driver. Exception: org.openqa.selenium.WebDriverException: ",
-                        "");
-            }
-            else if (
-                error.Contains(
-                    "A new session could not be created. (Original error: UiAutomator quit before it successfully launched)"))
-            {
-                error =
-                    "Test exception: java.lang.RuntimeException: Test initialization failed: java.util.concurrent.ExecutionException: java.lang.RuntimeException: org.openqa.selenium.SessionNotCreatedException: A new session could not be created. (Original error: UiAutomator quit before it successfully launched) ";
-            }
-            else if (error.Contains("WebDriverException: Error forwarding the new session Error forwarding the request Connection reset Command duration or timeout"))
-            {
-                error = "Test exception: java.lang.RuntimeException: Test initialization failed: java.util.concurrent.ExecutionException: java.lang.RuntimeException: org.openqa.selenium.WebDriverException: Error forwarding the new session Error forwarding the request Connection reset Command duration or timeout:";
-            }
-            else if (error.Contains("Test exception: java.lang.RuntimeException: Test initialization failed: java.util.concurrent.ExecutionException: java.lang.RuntimeException: org.openqa.selenium.WebDriverException: Error forwarding the new session Error forwarding the request"))
-            {
-                error = "Test exception: java.lang.RuntimeException: Test initialization failed: java.util.concurrent.ExecutionException: java.lang.RuntimeException: org.openqa.selenium.WebDriverException: Error forwarding the new session Error forwarding the request Connection reset Command duration or timeout";
-            }
-            else if (error.Contains("WebDriverException: The path to the driver executable must be set by the webdriver.chrome.driver system property; for more information, see https://github.com/SeleniumHQ/selenium/wiki/ChromeDriver. "))
-            {
-                error = "WebDriverException: The path to the driver executable must be set by the webdriver.chrome.driver system property; for more information, see https://github.com/SeleniumHQ/selenium/wiki/ChromeDriver. ";
-            }
-            else
-            {
-                i++;
-                int maxLinesToAdd = i + 3;
-                while (!fileLines[i].Contains("Browser video download") &&
-                       !fileLines[i].Contains("Test artifacts path:") && i < maxLinesToAdd)
-                {
-                    error += " " + fileLines[i++];
-                }
-            }
-            while (error.EndsWith(".") || error.EndsWith(":") || error.EndsWith(" "))
-            {
-                error = error.Substring(0, error.Length - 1);
-            }
-        }
-
-        private List<List<string>> getAllAndroidFiles()
-        {
-            var files = new List<List<string>>
-            {
-                new List<string>(
-                    new List<string> {"TechnicianView"}
-                        .Concat(File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_Technician_View.log", Encoding.UTF8))),
-                new List<string>(
-                    new List<string> {"FirstExperience"}
-                        .Concat(File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_First_Experience.log",
-                            Encoding.UTF8))),
-                new List<string>(
-                    new List<string> {"OngoingValue"}
-                        .Concat(File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_Ongoing_Value.log", Encoding.UTF8))),
-                new List<string>(
-                    new List<string> {"TechExpertExperienceTests"}
-                        .Concat(File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_Tech_Expert_Experience.log",
-                            Encoding.UTF8)))
-            };
-
-            return files;
         }
     }
 

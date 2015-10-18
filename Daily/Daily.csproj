@@ -35,15 +35,17 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Annotations.cs" />
-    <Compile Include="IssueWith.cs" />
-    <Compile Include="ReplacePlaceHolders.cs" />
+    <Compile Include="Exceptions\ErrorHandler.cs" />
+    <Compile Include="FilesHandler.cs" />
+    <Compile Include="Tests\IssueWith.cs" />
+    <Compile Include="Outputers\ReplacePlaceHolders.cs" />
     <Compile Include="MessageBuilder.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Outputers\ReportWriter.cs" />
     <Compile Include="Outputers\MailSender.cs" />
     <Compile Include="Tests\IssueWithFactory.cs" />
     <Compile Include="Tests\Test.cs" />
+    <Compile Include="Tests\TestHandler.cs" />
     <Compile Include="Tests\TestsHandler.cs" />
   </ItemGroup>
   <ItemGroup>
