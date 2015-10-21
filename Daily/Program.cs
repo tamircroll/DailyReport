@@ -1,4 +1,6 @@
-﻿namespace Daily
+﻿using System.Runtime.ExceptionServices;
+
+namespace Daily
 {
     internal static class Program
     {
@@ -6,7 +8,7 @@
         {
             var msg = new MessageBuilder();
             new ReportWriter().Write(msg.ReplacePlaceHolders.GetTextMessage());
-            new MailSender().SendMail(msg.ReplacePlaceHolders.GetHtmlMessage());
+            new MailSender().SendMail(msg.ReplacePlaceHolders.GetHtmlMessage(), msg.SomeVersion);
         }
     }
 }

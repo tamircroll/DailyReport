@@ -37,7 +37,9 @@ namespace Daily.Tests
             "AnalyticsFetcherWaitCondition",
             "ConfigurationChangedOnDeviceWaiter Wait condition failed. Exception: java.lang.Exception:",
             "Timed out while waiting for: Auto Brightness Setting Waiter",
-
+            "Timed out while waiting for: get notification if shown",
+            "Page object of type EnterPhoneNumberPage failed to load",
+            "Page object of type InCallPageObject failed to load",
         };
 
         static private readonly List<string> IssueWithAutomationPlatform = new List<string>

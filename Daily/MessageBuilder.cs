@@ -10,11 +10,19 @@ namespace Daily
     public class MessageBuilder
     {
         public readonly string Message;
+        public string someVersion;
 
         public MessageBuilder()
         {
             Message = build();
+            someVersion = setSomeVersion();
             _replacePlaceHolders = new ReplacePlaceHolders(this);
+        }
+
+        private string setSomeVersion()
+        {
+            List<string> file = new FilesHandler().getAllAndroidFiles()[0];
+            return VersionsHandler.getVersion(file);
         }
 
         public ReplacePlaceHolders ReplacePlaceHolders
@@ -37,6 +45,11 @@ namespace Daily
 
             setOutput(testsHandler, testsSummaryByTeamCity);
             return string.Concat(_output.ToArray());
+        }
+
+        public string SomeVersion
+        {
+            get { return someVersion; }
         }
 
         private void setOutput(TestsHandler testsHandler, List<int> testsSummaryByTeamCity)

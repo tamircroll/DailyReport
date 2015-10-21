@@ -12,14 +12,15 @@ namespace Daily
             foreach (List<string> file in files)
             {
                 string temp = file[0];
-                temp += ": " + getVersions(file);
-                suitesVersions.Add(temp + Environment.NewLine);
+                temp += ": " + getVersion(file);
+                suitesVersions.Add(temp + ReplacePlaceHolders.LINE);
             }
-            suitesVersions.Add(Environment.NewLine);
+            suitesVersions.Add(ReplacePlaceHolders.LINE);
+
             return suitesVersions;
         }
 
-        public static string getVersions(List<string> file)
+        public static string getVersion(List<string> file)
         {
             string toReturn = "";
             Regex r = new Regex(@"\[[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\] :	 \[Step 1/2\] ([0-9]\.[0-9]\.[0-9][0-9][0-9]\.[0-9])", RegexOptions.IgnoreCase);
