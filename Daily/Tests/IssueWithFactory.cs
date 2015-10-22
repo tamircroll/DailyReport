@@ -40,6 +40,8 @@ namespace Daily.Tests
             "Timed out while waiting for: get notification if shown",
             "Page object of type EnterPhoneNumberPage failed to load",
             "Page object of type InCallPageObject failed to load",
+            "The following notification was found, but was not supposed to",
+            "Page object of type HomeViewPageObject failed to load. Missing elements",
         };
 
         static private readonly List<string> IssueWithAutomationPlatform = new List<string>
@@ -49,6 +51,7 @@ namespace Daily.Tests
             "Not logged in to playstore",
             "java.lang.NullPointerException",
             "WebDriverException",
+            @"AppiumSeleniumAdb_Launcher\Resources\adb.exe -H",
 
         };
     }

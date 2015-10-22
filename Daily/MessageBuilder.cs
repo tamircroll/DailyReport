@@ -84,7 +84,7 @@ namespace Daily
             _output.Add(sb + ReplacePlaceHolders.LINE);
         }
 
-        private List<int> getAllSuitesTestsSummaries(List<List<string>> files)
+        public List<int> getAllSuitesTestsSummaries(List<List<string>> files)
         {
             var testSummaryBySuiteCount = new List<int> {0, 0, 0};
             foreach (var file in files)
@@ -141,7 +141,7 @@ namespace Daily
             }
         }
 
-        private void addSuiteToTestsHandler(List<string> fileLines, TestsHandler testsHandler, string suiteName)
+        public void addSuiteToTestsHandler(List<string> fileLines, TestsHandler testsHandler, string suiteName)
         {
             string build = BuildHandler.getBuildNumber(fileLines);
             for (int i = 0; i < fileLines.Count; i++)
