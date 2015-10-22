@@ -26,7 +26,7 @@ namespace Daily
             List<List<string>> files = FilesHandler.getAllFilesFromDirectory(@"C:\DailyReport\OldReports", currFileName);
             foreach (var file in files)
             {
-                if (file.Count(x => string.Equals(x, FilesHandler.setErrorAndTestName(error, Name))) > 0)
+                if (file.Any(x => x.Equals(FilesHandler.setErrorAndTestName(error, Name))))
                     return true;
             }
             return false;

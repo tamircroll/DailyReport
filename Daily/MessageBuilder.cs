@@ -12,33 +12,28 @@ namespace Daily
         public readonly string Message, SomeVersion;
         public TestsHandler TestsHandler;
         public readonly List<string> Builds;
+        public readonly ReplacePlaceHolders ReplacePlaceHolders;
+
+        private const int FAILED = 0, SUCCESS = 1, IGNORED = 2;
+        private readonly List<string> _output = new List<string>();
 
         public MessageBuilder()
         {
+            TestsHandler = new TestsHandler();
             Builds = BuildHandler.getAllBuildsNumbers(new FilesHandler().getAllAndroidFiles());
             Message = build();
-            SomeVersion = setSomeVersion();
-            _replacePlaceHolders = new ReplacePlaceHolders(this);
+            SomeVersion = getFirstFileVersion();
+            ReplacePlaceHolders = new ReplacePlaceHolders(this);
         }
 
-        private string setSomeVersion()
+        private string getFirstFileVersion()
         {
             List<string> file = new FilesHandler().getAllAndroidFiles()[0];
             return VersionsHandler.getVersion(file);
         }
 
-        public ReplacePlaceHolders ReplacePlaceHolders
-        {
-            get { return _replacePlaceHolders; }
-        }
-
-        private const int FAILED = 0, SUCCESS = 1, IGNORED = 2;
-        private readonly List<string> _output = new List<string>();
-        private readonly ReplacePlaceHolders _replacePlaceHolders;
-
         private string build()
         {
-            TestsHandler = new TestsHandler();
             var files = new FilesHandler().getAllAndroidFiles();
             List<string> suitesVersions = VersionsHandler.getsuitesVersions(files);
             _output.AddRange(suitesVersions);
@@ -47,6 +42,15 @@ namespace Daily
 
             setOutput(TestsHandler, testsSummaryByTeamCity);
             return string.Concat(_output.ToArray());
+        }
+
+        private void setTestsHandler(TestsHandler testsHandler, List<List<string>> files)
+        {
+            foreach (var file in files)
+            {
+                string suiteName = file[0];
+                addSuiteToTestsHandler(file, testsHandler, suiteName);
+            }
         }
 
         private void setOutput(TestsHandler testsHandler, List<int> testsSummaryByTeamCity)
@@ -66,13 +70,18 @@ namespace Daily
             addErrorsDescriptionToOutput(testsHandler.getIssuesWithUnKnown());
         }
 
-        private void setTestsHandler(TestsHandler testsHandler, List<List<string>> files)
+        private void addTestsSummaryToOutput(string title, List<int> testsCountByResults)
         {
-            foreach (var file in files)
-            {
-                string suiteName = file[0];
-                addSuiteToTestsHandler(file, testsHandler, suiteName);
-            }
+            int all = testsCountByResults[FAILED] + testsCountByResults[SUCCESS] + testsCountByResults[IGNORED];
+            int coverage = (all > 0) ? (testsCountByResults[FAILED] + testsCountByResults[SUCCESS])*100/all : 0;
+            var sb = new StringBuilder();
+            sb.AppendFormat("{0}: ", title);
+            sb.AppendFormat("Tests: {0}, ", all);
+            sb.AppendFormat("Failed: {0}, ", testsCountByResults[FAILED]);
+            sb.AppendFormat("Success: {0}, ", testsCountByResults[SUCCESS]);
+            sb.AppendFormat("Ignored: {0}, ", testsCountByResults[IGNORED]);
+            sb.AppendFormat("Coverage: {0}%", coverage);
+            _output.Add(sb + ReplacePlaceHolders.LINE);
         }
 
         private List<int> getAllSuitesTestsSummaries(List<List<string>> files)
@@ -108,20 +117,6 @@ namespace Daily
             }
         }
 
-        private void addTestsSummaryToOutput(string title, List<int> testsCountByResults)
-        {
-            int all = testsCountByResults[FAILED] + testsCountByResults[SUCCESS] + testsCountByResults[IGNORED];
-            int coverage = (all > 0) ? (testsCountByResults[FAILED] + testsCountByResults[SUCCESS])*100/all : 0;
-            var sb = new StringBuilder();
-            sb.AppendFormat("{0}: ", title);
-            sb.AppendFormat("Tests: {0}, ", all);
-            sb.AppendFormat("Failed: {0}, ", testsCountByResults[FAILED]);
-            sb.AppendFormat("Success: {0}, ", testsCountByResults[SUCCESS]);
-            sb.AppendFormat("Ignored: {0}, ", testsCountByResults[IGNORED]);
-            sb.AppendFormat("Coverage: {0}%", coverage);
-            _output.Add(sb + ReplacePlaceHolders.LINE);
-        }
-
         private void addErrorsDescriptionToOutput(SortedDictionary<string, List<Test>> errorsToTests)
         {
             _output.Add(ReplacePlaceHolders.LINE + ReplacePlaceHolders.LINE);
@@ -134,10 +129,13 @@ namespace Daily
                 _output.Add(string.Format("{0}: {1}", errorName, ReplacePlaceHolders.LINE));
                 foreach (Test test in tests)
                 {
-                    string failIndicator = test.isFirstTimeToGetError(errorName, FilesHandler.getNameByBuilds(Builds))? "*" : "";
+                    string failIndicator = test.isFirstTimeToGetError(errorName, FilesHandler.getNameByBuilds(Builds))
+                        ? "*"
+                        : "";
 
                     _output.Add(string.Format("{0}{0}{0}{0}{1}{2}. {3}{4}{5}", ReplacePlaceHolders.SPACE,
-                        ReplacePlaceHolders.SPAN_SMALL, testsCounter++, failIndicator, test, ReplacePlaceHolders.CLOSE_SPAN));
+                        ReplacePlaceHolders.SPAN_SMALL, testsCounter++, failIndicator, test,
+                        ReplacePlaceHolders.CLOSE_SPAN));
                 }
                 _output.Add(ReplacePlaceHolders.LINE);
             }
@@ -148,7 +146,8 @@ namespace Daily
             string build = BuildHandler.getBuildNumber(fileLines);
             for (int i = 0; i < fileLines.Count; i++)
             {
-                if (fileLines[i].Contains("] Test ignored:") || fileLines[i].Contains("marked as Skipped"))
+                if (fileLines[i].Contains("marked as Skipped")) continue;
+                if (fileLines[i].Contains("] Test ignored:"))
                 {
                     testsHandler.addIgnored(new Test(fileLines[i] + i, suiteName, build));
                 }
