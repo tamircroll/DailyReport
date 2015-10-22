@@ -143,7 +143,7 @@ namespace Daily
 
         public void addSuiteToTestsHandler(List<string> fileLines, TestsHandler testsHandler, string suiteName)
         {
-            string build = BuildHandler.getBuildNumber(fileLines);
+            string build = BuildHandler.getBuildNumber(fileLines[1]);
             for (int i = 0; i < fileLines.Count; i++)
             {
                 if (fileLines[i].Contains("marked as Skipped")) continue;
@@ -178,7 +178,7 @@ namespace Daily
 
         private void doIfFail(List<string> fileLines, TestsHandler testsHandler, string suiteName, ref int i)
         {
-            string build = BuildHandler.getBuildNumber(fileLines);
+            string build = BuildHandler.getBuildNumber(fileLines[1]);
             string testName = fileLines[i - 6].Replace(" Test name: ", "");
             testName = string.Format("{0}{1}{2}{3} ({4}){2}", Daily.ReplacePlaceHolders.SPAN_RED, testName,
                 ReplacePlaceHolders.CLOSE_SPAN, ReplacePlaceHolders.SPAN_GREEN, fileLines[0]);
