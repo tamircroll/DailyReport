@@ -8,6 +8,8 @@ namespace Daily
     {
         public static List<string> getsuitesVersions(List<List<string>> files)
         {
+            if (IosRun(files[0])) return new List<string>{""};
+
             List<string> suitesVersions = new List<string>();
             foreach (List<string> file in files)
             {
@@ -20,9 +22,17 @@ namespace Daily
             return suitesVersions;
         }
 
+        private static bool IosRun(List<string> file)
+        {
+            return file[0].Contains("iOS");
+        }
+
         public static string getVersion(List<string> file)
         {
             string toReturn = "";
+
+            if (IosRun(file)) return toReturn;
+            
             Regex r = new Regex(@"\[[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\] :	 \[Step 1/2\] ([0-9]\.[0-9]\.[0-9][0-9][0-9]\.[0-9])", RegexOptions.IgnoreCase);
             Match m = null;
             foreach (string line in file)
@@ -30,7 +40,6 @@ namespace Daily
                 m = r.Match(line);
                 if (m.Success)
                 {
-                    toReturn = line;
                     return m.Groups[1].ToString();
                 }
             }

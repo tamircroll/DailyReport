@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -54,9 +53,10 @@ namespace Daily
 
         public static string getNameByBuilds(List<string> builds)
         {
-            string name = DateTime.Now.Year + "." +
-                DateTime.Now.Month + "." +
-                DateTime.Now.Day + " ";
+            string name = "";
+//                DateTime.Now.Year + "." +
+//                DateTime.Now.Month + "." +
+//                DateTime.Now.Day + " ";
             foreach (string build in builds)
             {
                 name += build + "_";
