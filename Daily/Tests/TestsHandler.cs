@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Daily.Exceptions;
 
 namespace Daily.Tests
 {
@@ -8,6 +9,78 @@ namespace Daily.Tests
         private readonly SortedDictionary<string, List<Test>> errorlsToFailedTests = new SortedDictionary<string, List<Test>>();
         private readonly List<Test> passedTests = new List<Test>();
         private readonly List<Test> ignoredTests = new List<Test>();
+
+        public TestsHandler(List<List<string>> files)
+        {
+            foreach (var file in files)
+            {
+                string suiteName = file[0];
+                addSuiteToTestsHandler(file, suiteName);
+            }
+        }
+
+        public void addSuiteToTestsHandler(List<string> fileLines, string suiteName)
+        {
+            string build = BuildHandler.getBuildNumber(fileLines[1]);
+
+            for (int i = 0; i < fileLines.Count; i++)
+            {
+                if (fileLines[i].Contains("marked as Skipped")) continue;
+                if (fileLines[i].Contains("] Test ignored:"))
+                {
+                    addIgnored(new Test(fileLines[i] + i, suiteName, build, ""));
+                }
+
+                if (!fileLines[i].StartsWith(" Test name: ")) continue;
+
+                i += 2;
+                if (fileLines[i].Contains("Success"))
+                {
+                    addPassed(new Test(fileLines[i] + i, suiteName, build, ""));
+                }
+
+                else if (fileLines[i].Contains("Fail"))
+                {
+                    i += 4;
+                    if (fileLines[i].Contains("SkipException"))
+                    {
+                        addIgnored(new Test(fileLines[i] + i, suiteName, build, ""));
+                        i += 5;
+                    }
+                    else
+                    {
+                        doIfFail(fileLines, suiteName, ref i);
+                    }
+                }
+            }
+        }
+
+        private void doIfFail(List<string> fileLines, string suiteName, ref int i)
+        {
+            string logzIO = getLogsIo(fileLines, i);
+            string build = BuildHandler.getBuildNumber(fileLines[1]);
+            string testName = fileLines[i - 6].Replace(" Test name: ", "");
+            testName = string.Format("{0}{1}{2}{3} ({4}){2}", ReplacePlaceHolders.SPAN_RED, testName,
+                ReplacePlaceHolders.CLOSE_SPAN, ReplacePlaceHolders.SPAN_GREEN, fileLines[0]);
+
+            string error = fileLines[i];
+            testName += TestHelper.GetEndOfTestName(ref error, fileLines, ref i);
+            ErrorHandler.setErrorName(ref error, fileLines, ref i);
+            addFailure(error, new Test(testName, suiteName, build, logzIO));
+        }
+
+        private string getLogsIo(List<string> fileLines, int i)
+        {
+            while (i < fileLines.Count)
+            {
+                if (fileLines[i].Contains(" ++++++ Link to Logz.io (contains all logs) for test name: "))
+                {
+                    return fileLines[i + 1];
+                }
+                i++;
+            }
+            return "Could not find logzLio link";
+        }
 
         public SortedDictionary<string, List<Test>> FailedTests
         {

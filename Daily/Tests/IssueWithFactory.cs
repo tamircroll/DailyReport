@@ -52,6 +52,7 @@ namespace Daily.Tests
             "java.lang.NullPointerException",
             "WebDriverException",
             @"AppiumSeleniumAdb_Launcher\Resources\adb.exe -H",
+            "Waiter Condition: Timed out while waiting for: Waiting for HomeTestsHelper service to be online",
 
         };
     }

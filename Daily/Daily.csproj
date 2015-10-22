@@ -46,7 +46,7 @@
     <Compile Include="Outputers\MailSender.cs" />
     <Compile Include="Tests\IssueWithFactory.cs" />
     <Compile Include="Tests\Test.cs" />
-    <Compile Include="Tests\TestHandler.cs" />
+    <Compile Include="Tests\TestHelper.cs" />
     <Compile Include="Tests\TestsHandler.cs" />
     <Compile Include="VersionsHandler.cs" />
   </ItemGroup>

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Daily.Tests
 {
-    class TestHandler
+    class TestHelper
     {
         public static string GetEndOfTestName(ref string error, List<string> fileLines, ref int i)
         {
@@ -31,7 +31,7 @@ namespace Daily.Tests
                         .Replace(" Timed out while waiting for: get notification if shown.", "");
             }
 
-            return addToEndOfTestName + ReplacePlaceHolders.LINE;
+            return addToEndOfTestName;
         }
     }
 }

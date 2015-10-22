@@ -10,17 +10,19 @@ namespace Daily
     public class MessageBuilder
     {
         public readonly string Message, SomeVersion;
-        public TestsHandler TestsHandler;
+        public readonly TestsHandler TestsHandler;
         public readonly List<string> Builds;
         public readonly ReplacePlaceHolders ReplacePlaceHolders;
 
         private const int FAILED = 0, SUCCESS = 1, IGNORED = 2;
         private readonly List<string> _output = new List<string>();
+        private readonly List<List<string>> _files;
 
-        public MessageBuilder()
+        public MessageBuilder(List<List<string>> files)
         {
-            TestsHandler = new TestsHandler();
-            Builds = BuildHandler.getAllBuildsNumbers(new FilesHandler().getAllAndroidFiles());
+            _files = files;
+            TestsHandler = new TestsHandler(_files);
+            Builds = BuildHandler.getAllBuildsNumbers(_files);
             Message = build();
             SomeVersion = getFirstFileVersion();
             ReplacePlaceHolders = new ReplacePlaceHolders(this);
@@ -28,29 +30,18 @@ namespace Daily
 
         private string getFirstFileVersion()
         {
-            List<string> file = new FilesHandler().getAllAndroidFiles()[0];
+            List<string> file = _files[0];
             return VersionsHandler.getVersion(file);
         }
 
         private string build()
         {
-            var files = new FilesHandler().getAllAndroidFiles();
-            List<string> suitesVersions = VersionsHandler.getsuitesVersions(files);
+            List<string> suitesVersions = VersionsHandler.getsuitesVersions(_files);
             _output.AddRange(suitesVersions);
-            List<int> testsSummaryByTeamCity = getAllSuitesTestsSummaries(files);
-            setTestsHandler(TestsHandler, files);
+            List<int> testsSummaryByTeamCity = getAllSuitesTestsSummaries(_files);
 
             setOutput(TestsHandler, testsSummaryByTeamCity);
             return string.Concat(_output.ToArray());
-        }
-
-        private void setTestsHandler(TestsHandler testsHandler, List<List<string>> files)
-        {
-            foreach (var file in files)
-            {
-                string suiteName = file[0];
-                addSuiteToTestsHandler(file, testsHandler, suiteName);
-            }
         }
 
         private void setOutput(TestsHandler testsHandler, List<int> testsSummaryByTeamCity)
@@ -94,6 +85,7 @@ namespace Daily
                     addSuiteTestsSummary(file[3], testSummaryBySuiteCount);
                 }
             }
+
             return testSummaryBySuiteCount;
         }
 
@@ -133,60 +125,12 @@ namespace Daily
                         ? "*"
                         : "";
 
-                    _output.Add(string.Format("{0}{0}{0}{0}{1}{2}. {3}{4}{5}", ReplacePlaceHolders.SPACE,
-                        ReplacePlaceHolders.SPAN_SMALL, testsCounter++, failIndicator, test,
-                        ReplacePlaceHolders.CLOSE_SPAN));
+                    _output.Add(string.Format(@"{0}{0}{0}{0}{1}{2}. {3}{4}. Link: {5}{6}{7}", ReplacePlaceHolders.SPACE,
+                        ReplacePlaceHolders.SPAN_SMALL, testsCounter++, failIndicator, test, test.LinkToLogzIO,
+                        ReplacePlaceHolders.CLOSE_SPAN, ReplacePlaceHolders.LINE));
                 }
                 _output.Add(ReplacePlaceHolders.LINE);
             }
-        }
-
-        public void addSuiteToTestsHandler(List<string> fileLines, TestsHandler testsHandler, string suiteName)
-        {
-            string build = BuildHandler.getBuildNumber(fileLines[1]);
-            for (int i = 0; i < fileLines.Count; i++)
-            {
-                if (fileLines[i].Contains("marked as Skipped")) continue;
-                if (fileLines[i].Contains("] Test ignored:"))
-                {
-                    testsHandler.addIgnored(new Test(fileLines[i] + i, suiteName, build));
-                }
-
-                if (!fileLines[i].StartsWith(" Test name: ")) continue;
-
-                i += 2;
-                if (fileLines[i].Contains("Success"))
-                {
-                    testsHandler.addPassed(new Test(fileLines[i] + i, suiteName, build));
-                }
-
-                else if (fileLines[i].Contains("Fail"))
-                {
-                    i += 4;
-                    if (fileLines[i].Contains("SkipException"))
-                    {
-                        testsHandler.addIgnored(new Test(fileLines[i] + i, suiteName, build));
-                        i += 5;
-                    }
-                    else
-                    {
-                        doIfFail(fileLines, testsHandler, suiteName, ref i);
-                    }
-                }
-            }
-        }
-
-        private void doIfFail(List<string> fileLines, TestsHandler testsHandler, string suiteName, ref int i)
-        {
-            string build = BuildHandler.getBuildNumber(fileLines[1]);
-            string testName = fileLines[i - 6].Replace(" Test name: ", "");
-            testName = string.Format("{0}{1}{2}{3} ({4}){2}", Daily.ReplacePlaceHolders.SPAN_RED, testName,
-                ReplacePlaceHolders.CLOSE_SPAN, ReplacePlaceHolders.SPAN_GREEN, fileLines[0]);
-
-            string error = fileLines[i];
-            testName += TestHandler.GetEndOfTestName(ref error, fileLines, ref i);
-            ErrorHandler.setErrorName(ref error, fileLines, ref i);
-            testsHandler.addFailure(error, new Test(testName, suiteName, build));
         }
     }
 
