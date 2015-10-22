@@ -49,15 +49,13 @@ namespace Daily
             addTestsSummaryToOutput("Actual count", testsHandler.getTestsCount());
             addTestsSummaryToOutput("By Suite ", testsSummaryByTeamCity);
 
-            _output.Add(String.Format("{2}{0}Issues with application:{1}", ReplacePlaceHolders.DIV_BOLD_UNDERLINE,
-                ReplacePlaceHolders.CLOSE_DIV, ReplacePlaceHolders.LINE));
+            _output.Add(String.Format("{0}{1}Issues with application:{2}", ReplacePlaceHolders.LINE, ReplacePlaceHolders.DIV_BOLD_UNDERLINE, ReplacePlaceHolders.CLOSE_DIV));
             addErrorsDescriptionToOutput(testsHandler.getIssuesWithApp());
-            _output.Add(String.Format("{2}{0}Automation development failures:{1}",
-                ReplacePlaceHolders.DIV_BOLD_UNDERLINE, ReplacePlaceHolders.CLOSE_DIV,
-                ReplacePlaceHolders.LINE));
+            _output.Add(String.Format("{0}{1}Automation development failures:{2}", ReplacePlaceHolders.LINE, ReplacePlaceHolders.DIV_BOLD_UNDERLINE,
+                ReplacePlaceHolders.CLOSE_DIV));
             addErrorsDescriptionToOutput(testsHandler.getIssuesWithAutomation());
-            _output.Add(String.Format("{2}{0}UnKnown:{1}", Daily.ReplacePlaceHolders.DIV_BOLD_UNDERLINE,
-                ReplacePlaceHolders.CLOSE_DIV, ReplacePlaceHolders.LINE));
+            _output.Add(String.Format("{0}{1}UnKnown:{2}", ReplacePlaceHolders.LINE,
+                ReplacePlaceHolders.DIV_BOLD_UNDERLINE, ReplacePlaceHolders.CLOSE_DIV));
             addErrorsDescriptionToOutput(testsHandler.getIssuesWithUnKnown());
         }
 
