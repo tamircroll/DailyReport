@@ -9,13 +9,15 @@ namespace Daily
 {
     public class MessageBuilder
     {
-        public readonly string Message;
-        public string someVersion;
+        public readonly string Message, SomeVersion;
+        public TestsHandler TestsHandler;
+        public readonly List<string> Builds;
 
         public MessageBuilder()
         {
+            Builds = BuildHandler.getAllBuildsNumbers(new FilesHandler().getAllAndroidFiles());
             Message = build();
-            someVersion = setSomeVersion();
+            SomeVersion = setSomeVersion();
             _replacePlaceHolders = new ReplacePlaceHolders(this);
         }
 
@@ -36,20 +38,15 @@ namespace Daily
 
         private string build()
         {
-            TestsHandler testsHandler = new TestsHandler();
+            TestsHandler = new TestsHandler();
             var files = new FilesHandler().getAllAndroidFiles();
             List<string> suitesVersions = VersionsHandler.getsuitesVersions(files);
             _output.AddRange(suitesVersions);
             List<int> testsSummaryByTeamCity = getAllSuitesTestsSummaries(files);
-            setTestsHandler(testsHandler, files);
+            setTestsHandler(TestsHandler, files);
 
-            setOutput(testsHandler, testsSummaryByTeamCity);
+            setOutput(TestsHandler, testsSummaryByTeamCity);
             return string.Concat(_output.ToArray());
-        }
-
-        public string SomeVersion
-        {
-            get { return someVersion; }
         }
 
         private void setOutput(TestsHandler testsHandler, List<int> testsSummaryByTeamCity)
@@ -134,11 +131,13 @@ namespace Daily
                 var errorName = errorToTests.Key;
                 var tests = errorToTests.Value;
 
-                _output.Add(string.Format("{0}: {1}", errorName, Daily.ReplacePlaceHolders.LINE));
-                foreach (Test testName in tests)
+                _output.Add(string.Format("{0}: {1}", errorName, ReplacePlaceHolders.LINE));
+                foreach (Test test in tests)
                 {
-                    _output.Add(string.Format("{4}{4}{4}{4}{0}{1}. {2}{3}", ReplacePlaceHolders.SPAN_SMALL,
-                        testsCounter++, testName, ReplacePlaceHolders.CLOSE_SPAN, ReplacePlaceHolders.SPACE));
+                    string failIndicator = test.isFirstTimeToGetError(errorName, FilesHandler.getNameByBuilds(Builds))? "*" : "";
+
+                    _output.Add(string.Format("{0}{0}{0}{0}{1}{2}. {3}{4}{5}", ReplacePlaceHolders.SPACE,
+                        ReplacePlaceHolders.SPAN_SMALL, testsCounter++, failIndicator, test, ReplacePlaceHolders.CLOSE_SPAN));
                 }
                 _output.Add(ReplacePlaceHolders.LINE);
             }
@@ -146,11 +145,12 @@ namespace Daily
 
         private void addSuiteToTestsHandler(List<string> fileLines, TestsHandler testsHandler, string suiteName)
         {
+            string build = BuildHandler.getBuildNumber(fileLines);
             for (int i = 0; i < fileLines.Count; i++)
             {
                 if (fileLines[i].Contains("] Test ignored:") || fileLines[i].Contains("marked as Skipped"))
                 {
-                    testsHandler.addIgnored(new Test(fileLines[i] + i, suiteName));
+                    testsHandler.addIgnored(new Test(fileLines[i] + i, suiteName, build));
                 }
 
                 if (!fileLines[i].StartsWith(" Test name: ")) continue;
@@ -158,7 +158,7 @@ namespace Daily
                 i += 2;
                 if (fileLines[i].Contains("Success"))
                 {
-                    testsHandler.addPassed(new Test(fileLines[i] + i, suiteName));
+                    testsHandler.addPassed(new Test(fileLines[i] + i, suiteName, build));
                 }
 
                 else if (fileLines[i].Contains("Fail"))
@@ -166,7 +166,7 @@ namespace Daily
                     i += 4;
                     if (fileLines[i].Contains("SkipException"))
                     {
-                        testsHandler.addIgnored(new Test(fileLines[i] + i, suiteName));
+                        testsHandler.addIgnored(new Test(fileLines[i] + i, suiteName, build));
                         i += 5;
                     }
                     else
@@ -179,6 +179,7 @@ namespace Daily
 
         private void doIfFail(List<string> fileLines, TestsHandler testsHandler, string suiteName, ref int i)
         {
+            string build = BuildHandler.getBuildNumber(fileLines);
             string testName = fileLines[i - 6].Replace(" Test name: ", "");
             testName = string.Format("{0}{1}{2}{3} ({4}){2}", Daily.ReplacePlaceHolders.SPAN_RED, testName,
                 ReplacePlaceHolders.CLOSE_SPAN, ReplacePlaceHolders.SPAN_GREEN, fileLines[0]);
@@ -186,7 +187,7 @@ namespace Daily
             string error = fileLines[i];
             testName += TestHandler.GetEndOfTestName(ref error, fileLines, ref i);
             ErrorHandler.setErrorName(ref error, fileLines, ref i);
-            testsHandler.addFailure(error, new Test(testName, suiteName));
+            testsHandler.addFailure(error, new Test(testName, suiteName, build));
         }
     }
 

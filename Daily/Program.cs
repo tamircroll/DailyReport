@@ -7,7 +7,8 @@ namespace Daily
         private static void Main()
         {
             var msg = new MessageBuilder();
-            new ReportWriter().Write(msg.ReplacePlaceHolders.GetTextMessage());
+            new FileWriter().Write(msg.ReplacePlaceHolders.GetTextMessage());
+            new FileWriter().Write(msg.TestsHandler.FailedTests, msg.Builds);
             new MailSender().SendMail(msg.ReplacePlaceHolders.GetHtmlMessage(), msg.SomeVersion);
         }
     }

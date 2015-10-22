@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -28,6 +29,40 @@ namespace Daily
             };
 
             return files;
+        }
+
+        public static List<List<string>> getAllFilesFromDirectory(string folderPath, string desclude)
+        {
+            List<List<string>> toReturn = new List<List<string>>();
+            List<string> filesPaths = Directory.GetFiles(folderPath).ToList();
+
+            foreach (string path in filesPaths)
+            {
+                if (!path.Contains(desclude))
+                {
+                    toReturn.Add(new List<string>(File.ReadAllLines(path, Encoding.UTF8)));
+                }
+            }
+
+            return toReturn;
+        }
+
+        public static string setErrorAndTestName(string error, string test)
+        {
+            return error + " " + test;
+        }
+
+        public static string getNameByBuilds(List<string> builds)
+        {
+            string name = DateTime.Now.Year + "." +
+                DateTime.Now.Month + "." +
+                DateTime.Now.Day + " ";
+            foreach (string build in builds)
+            {
+                name += build + "_";
+            }
+
+            return name.Remove(name.Length - 1) + ".txt";
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Daily.Tests
 {
-    class TestsHandler
+    public class TestsHandler
     {
         private readonly SortedDictionary<string, List<Test>> errorlsToFailedTests = new SortedDictionary<string, List<Test>>();
         private readonly List<Test> passedTests = new List<Test>();

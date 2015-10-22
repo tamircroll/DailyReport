@@ -31,11 +31,11 @@ namespace Daily
                 if (m.Success)
                 {
                     toReturn = line;
-                    break;
+                    return m.Groups[1].ToString();
                 }
             }
 
-            return m.Groups[1].ToString();
+            throw new Exception("App version was not found in suite: " + file[0]);
         }
     }
 }
