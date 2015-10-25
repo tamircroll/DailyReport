@@ -70,7 +70,7 @@ namespace Daily
 
         private string getLatestLogPath(string folder, string suiteName)
         {
-            var pattern = suiteName.Split(' ').Aggregate("", (current, s) => current + (".*" + s)) + @".*(\d{3}).*\.log";
+            var pattern = suiteName.Split(' ').Aggregate("", (current, s) => current + (".*" + s)) + @".*?(\d+)";
             var regex = new Regex(pattern);
             var toReturn = "";
             var maxBuildNumber = -1;
