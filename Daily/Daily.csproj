@@ -39,6 +39,7 @@
     <Compile Include="Exceptions\ErrorHandler.cs" />
     <Compile Include="FilesHandler.cs" />
     <Compile Include="PrintAllTestsNames.cs" />
+    <Compile Include="TeamCityHandler.cs" />
     <Compile Include="Tests\IssueWith.cs" />
     <Compile Include="Outputers\ReplacePlaceHolders.cs" />
     <Compile Include="MessageBuilder.cs" />

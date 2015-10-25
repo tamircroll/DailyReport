@@ -70,8 +70,7 @@ namespace Daily.Tests
 
         private string getLogsIo(List<string> fileLines, int i)
         {
-            int minLineToSearch = i - 50;
-            while (i > minLineToSearch)
+            while (!fileLines[i].StartsWith(" ++++++ Starting test: "))
             {
                 if (fileLines[i].StartsWith(@"https://goo.gl/"))
                 {
