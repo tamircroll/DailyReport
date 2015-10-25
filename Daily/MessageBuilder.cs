@@ -33,7 +33,6 @@ namespace Daily
         {
             List<string> suitesVersions = VersionsHandler.getsuitesVersions(_files);
             _output.AddRange(suitesVersions);
-            addTestsSummaryToOutput("By Suite ", new TeamCityHandler().getAllSuitesTestsSummaries(_files));
             addTestsToOutput(TestsHandler);
 
             return string.Concat(_output.ToArray());
@@ -41,6 +40,7 @@ namespace Daily
 
         private void addTestsToOutput(TestsHandler testsHandler)
         {
+            addTestsSummaryToOutput("By Suite ", new TeamCityHandler().getAllSuitesTestsSummaries(_files));
             addTestsSummaryToOutput("Actual count", testsHandler.getTestsCount());
 
             _output.Add(String.Format("{0}{1}Issues with application:{2}", ReplacePlaceHolders.LINE, ReplacePlaceHolders.DIV_BOLD_UNDERLINE, ReplacePlaceHolders.CLOSE_DIV));
