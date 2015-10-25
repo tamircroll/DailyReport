@@ -91,7 +91,7 @@ namespace Daily
                         ? "*"
                         : "";
 
-                    _output.Add(string.Format(@"{0}{0}{0}{0}{1}{2}. {3}{4}. Link: {5}{6}{7}", ReplacePlaceHolders.SPACE,
+                    _output.Add(string.Format(@"{0}{0}{0}{0}{1}{2}. {3}{4}. {5}{6}{7}", ReplacePlaceHolders.SPACE,
                         ReplacePlaceHolders.SPAN_SMALL, testsCounter++, failIndicator, test, test.LinkToLogzIO,
                         ReplacePlaceHolders.CLOSE_SPAN, ReplacePlaceHolders.LINE));
                 }

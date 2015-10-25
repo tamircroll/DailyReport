@@ -9,28 +9,42 @@ namespace Daily
 {
     public class FilesHandler
     {
+        const string folder = "c:/DailyReport/";
+
         public List<List<string>> getAllAndroidFiles()
         {
-            const string folder = "c:/DailyReport/";
-            var files = new List<List<string>>
-            {
-                new List<string>(
-                    new List<string> {"TechnicianView"}
-                        .Concat(File.ReadAllLines(getLatestLogPath(folder,"Technician View"), Encoding.UTF8))),
-                new List<string>(
-                    new List<string> {"FirstExperience"}
-                        .Concat(File.ReadAllLines(getLatestLogPath(folder,"First Experience"),
-                            Encoding.UTF8))),
-                new List<string>(
-                    new List<string> {"OngoingValue"}
-                        .Concat(File.ReadAllLines(getLatestLogPath(folder,"Ongoing Value"), Encoding.UTF8))),
-                new List<string>(
-                    new List<string> {"TechExpertExperienceTests"}
-                        .Concat(File.ReadAllLines(getLatestLogPath(folder,"Tech Expert Experience"),
-                            Encoding.UTF8)))
-            };
+            var files = new List<List<string>>();
+
+            tryAddFileToList("TechnicianView", files);
+            tryAddFileToList("FirstExperience", files);
+            tryAddFileToList("OngoingValue", files);
+            tryAddFileToList("TechExpertExperienceTests", files);
 
             return files;
+        }
+
+        private void tryAddFileToList(string fileName, List<List<string>> files)
+        {
+            try
+            {
+                List<string> file = new List<string>(
+                    new List<string> {splitCapitales(fileName)}
+                        .Concat(File.ReadAllLines(getLatestLogPath(folder, "Technician View"), Encoding.UTF8)));
+                files.Add(file);
+            }
+            catch {}
+        }
+
+        private string splitCapitales(string fileName)
+        {
+            var builder = new StringBuilder();
+            foreach (var c in fileName)
+            {
+                if (Char.IsUpper(c) && builder.Length > 0) builder.Append(' ');
+                builder.Append(c);
+            }
+         
+            return builder.ToString();
         }
 
         public static List<List<string>> getAllFilesFromDirectory(string folderPath, string desclude)

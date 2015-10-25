@@ -38,6 +38,7 @@
     <Compile Include="BuildHandler.cs" />
     <Compile Include="Exceptions\ErrorHandler.cs" />
     <Compile Include="FilesHandler.cs" />
+    <Compile Include="LinkCreator.cs" />
     <Compile Include="PrintAllTestsNames.cs" />
     <Compile Include="TeamCityHandler.cs" />
     <Compile Include="Tests\IssueWith.cs" />

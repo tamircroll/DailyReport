@@ -5,18 +5,25 @@ namespace Daily
 {
     public class Test
     {
-        public Test(string name, string suite, string buildNumber, string linkToLogzIO)
+        private string linkToLogzIO;
+
+        public Test(string name, string suite, string buildNumber, string linkToLogzIo)
         {
             Name = name;
             Suite = suite;
             BuildNumber = buildNumber;
-            LinkToLogzIO = linkToLogzIO;
+            LinkToLogzIO = linkToLogzIo;
         }
 
         public string Name { get; set; }
         public string Suite { get; set; }
         public string BuildNumber { get; set; }
-        public string LinkToLogzIO { get; set; }
+
+        public string LinkToLogzIO
+        {
+            get { return linkToLogzIO; }
+            private set { linkToLogzIO = new LinkCreator().makeLink("logz.Io Link", value); }
+        }
 
 
         public override string ToString()

@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace Daily
 {
-    class BuildHandler
+    static class BuildHandler
     {
         public static string getBuildNumber(string line)
         {

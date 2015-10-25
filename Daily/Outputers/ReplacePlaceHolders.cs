@@ -10,6 +10,10 @@ namespace Daily
         public const string CLOSE_SPAN = "{5}";
         public const string DIV_BOLD_UNDERLINE = "{6}";
         public const string CLOSE_DIV = "{7}";
+        public const string START_LINK_OPEN = "{8}";
+        public const string START_LINK_CLOSE = "{9}";
+        public const string CLOSE_LINK = "{10}";
+
 
         private MessageBuilder _messageBuilder;
 
@@ -28,7 +32,11 @@ namespace Daily
                 .Replace(LINE, "\n")
                 .Replace(DIV_BOLD_UNDERLINE, "")
                 .Replace(CLOSE_DIV, "")
-                .Replace(SPACE, " ");
+                .Replace(SPACE, " ")
+                .Replace(START_LINK_OPEN, " ")
+                .Replace(START_LINK_CLOSE, " ")
+                .Replace(CLOSE_LINK, " ")
+            ;
         }
 
         public string GetHtmlMessage()
@@ -41,7 +49,10 @@ namespace Daily
                 .Replace(LINE, "<br>")
                 .Replace(DIV_BOLD_UNDERLINE, "<div style='text-decoration: underline; font-weight: bold;'>")
                 .Replace(CLOSE_DIV, "</div>")
-                .Replace(SPACE, "&nbsp");
+                .Replace(SPACE, "&nbsp")
+                .Replace(START_LINK_OPEN, "<a href ='")
+                .Replace(START_LINK_CLOSE, "'>")
+                .Replace(CLOSE_LINK, "</a>");
         }
     }
 }
