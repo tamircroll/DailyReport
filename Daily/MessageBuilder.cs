@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.RegularExpressions;
 using Daily.Tests;
 
 namespace Daily
@@ -31,18 +30,27 @@ namespace Daily
 
         private string buildMessage()
         {
-            List<string> suitesVersions = VersionsHandler.getsuitesVersions(_files);
-            _output.AddRange(suitesVersions);
+            addSuitesVersionsToOutput();
+            addSummeariesToOutput();
             addTestsToOutput(TestsHandler);
 
             return string.Concat(_output.ToArray());
         }
 
-        private void addTestsToOutput(TestsHandler testsHandler)
+        private void addSuitesVersionsToOutput()
+        {
+            List<string> suitesVersions = VersionsHandler.getsuitesVersions(_files);
+            _output.AddRange(suitesVersions);
+        }
+
+        private void addSummeariesToOutput()
         {
             addTestsSummaryToOutput("By Suite ", new TeamCityHandler().getAllSuitesTestsSummaries(_files));
-            addTestsSummaryToOutput("Actual count", testsHandler.getTestsCount());
+            addTestsSummaryToOutput("Actual count", TestsHandler.getTestsCount());
+        }
 
+        private void addTestsToOutput(TestsHandler testsHandler)
+        {
             _output.Add(String.Format("{0}{1}Issues with application:{2}", ReplacePlaceHolders.LINE, ReplacePlaceHolders.DIV_BOLD_UNDERLINE, ReplacePlaceHolders.CLOSE_DIV));
             addErrorsDescriptionToOutput(testsHandler.getIssuesWithApp());
             _output.Add(String.Format("{0}{1}Automation development failures:{2}", ReplacePlaceHolders.LINE, ReplacePlaceHolders.DIV_BOLD_UNDERLINE,
