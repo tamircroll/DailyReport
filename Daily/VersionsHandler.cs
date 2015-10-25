@@ -24,7 +24,7 @@ namespace Daily
 
         private static bool IosRun(List<string> file)
         {
-            return file[0].Contains("iOS");
+            return file[0].Contains("iOS") || file[1].Contains("iOS");
         }
 
         public static string getVersion(List<string> file)
