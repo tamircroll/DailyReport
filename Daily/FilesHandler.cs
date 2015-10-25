@@ -9,42 +9,40 @@ namespace Daily
 {
     public class FilesHandler
     {
-        const string folder = "c:/DailyReport/";
-
-        public List<List<string>> getAllAndroidFiles()
+        const string logsFolder = "c:/DailyReport/";
+        public List<List<string>> GetAllAndroidFiles()
         {
-            var files = new List<List<string>>();
-
-            tryAddFileToList("TechnicianView", files);
-            tryAddFileToList("FirstExperience", files);
-            tryAddFileToList("OngoingValue", files);
-            tryAddFileToList("TechExpertExperienceTests", files);
-
-            return files;
-        }
-
-        private void tryAddFileToList(string fileName, List<List<string>> files)
-        {
-            try
+            var list = new List<List<string>>
             {
-                List<string> file = new List<string>(
-                    new List<string> {splitCapitales(fileName)}
-                        .Concat(File.ReadAllLines(getLatestLogPath(folder, "Technician View"), Encoding.UTF8)));
-                files.Add(file);
-            }
-            catch {}
+                GetTestsList("TechnicianView"),
+                GetTestsList("FirstExperience"),
+                GetTestsList("OngoingValue"),
+                GetTestsList("TechExpertExperience")
+            };
+            list.RemoveAll(item => item == null);
+            return list;
         }
 
-        private string splitCapitales(string fileName)
+        private List<string> GetTestsList(string suite)
         {
             var builder = new StringBuilder();
-            foreach (var c in fileName)
+            foreach (var c in suite)
             {
                 if (Char.IsUpper(c) && builder.Length > 0) builder.Append(' ');
                 builder.Append(c);
             }
-         
-            return builder.ToString();
+            var suiteSplittedByCapitel = builder.ToString();
+
+            try
+            {
+                return new List<string>(
+                        new List<string> { suite }
+                            .Concat(File.ReadAllLines(getLatestLogPath(logsFolder, suiteSplittedByCapitel), Encoding.UTF8)));
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         public static List<List<string>> getAllFilesFromDirectory(string folderPath, string desclude)
@@ -71,9 +69,9 @@ namespace Daily
         public static string getNameByBuilds(List<string> builds)
         {
             string name = "";
-//                DateTime.Now.Year + "." +
-//                DateTime.Now.Month + "." +
-//                DateTime.Now.Day + " ";
+            //                DateTime.Now.Year + "." +
+            //                DateTime.Now.Month + "." +
+            //                DateTime.Now.Day + " ";
             foreach (string build in builds)
             {
                 name += build + "_";

@@ -7,7 +7,7 @@ namespace Daily
         private static void Main()
         {
 //            new PrintAllTestsNames().print();
-            var msg = new MessageBuilder(new FilesHandler().getAllAndroidFiles());
+            var msg = new MessageBuilder(new FilesHandler().GetAllAndroidFiles());
             new FileWriter().Write(msg.ReplacePlaceHolders.GetTextMessage());
             new FileWriter().Write(msg.TestsHandler.FailedTests, msg.Builds);
             new MailSender().SendMail(msg.ReplacePlaceHolders.GetHtmlMessage(), msg.Versions);
