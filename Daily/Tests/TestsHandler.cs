@@ -74,9 +74,9 @@ namespace Daily.Tests
             int minLineToSearch = i - 50;
             while (i > minLineToSearch)
             {
-                if (fileLines[i].Contains(" ++++++ Link to Logz.io (contains all logs) for test name: "))
+                if (fileLines[i].StartsWith(@"https://goo.gl/"))
                 {
-                    return fileLines[i + 1];
+                    return fileLines[i];
                 }
 
                 i--;
