@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
-using Daily.Exceptions;
 using Daily.Tests;
 
 namespace Daily
 {
     public class MessageBuilder
     {
-        public readonly string Message, SomeVersion;
+        public readonly string Message, Versions;
         public readonly TestsHandler TestsHandler;
         public readonly List<string> Builds;
         public readonly ReplacePlaceHolders ReplacePlaceHolders;
@@ -23,18 +22,12 @@ namespace Daily
             _files = files;
             TestsHandler = new TestsHandler(_files);
             Builds = BuildHandler.getAllBuildsNumbers(_files);
-            Message = build();
-            SomeVersion = getFirstFileVersion();
+            Message = buildMessage();
+            Versions = VersionsHandler.getVersionsStr(_files);
             ReplacePlaceHolders = new ReplacePlaceHolders(this);
         }
 
-        private string getFirstFileVersion()
-        {
-            List<string> file = _files[0];
-            return VersionsHandler.getVersion(file);
-        }
-
-        private string build()
+        private string buildMessage()
         {
             List<string> suitesVersions = VersionsHandler.getsuitesVersions(_files);
             _output.AddRange(suitesVersions);

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Daily
@@ -45,6 +46,27 @@ namespace Daily
             }
 
             throw new Exception("App version was not found in suite: " + file[0]);
+        }
+
+        public static List<string> getVersions(List<List<string>> files)
+        {
+            List<string> versions = new List<string>();
+            foreach (List<string> file in files)
+            {
+                string version = getVersion(file);
+                if (versions.Any(s => s.Contains(version))) continue;
+                versions.Add(version);
+            }
+
+            return versions;
+        }
+
+        public static string getVersionsStr(List<List<string>> files)
+        {
+            List<string> versions = getVersions(files);
+            String versionsStr = versions.Aggregate("", (current, version) => current + version + "/");
+
+            return versionsStr.Remove(versionsStr.Length - 1);
         }
     }
 }

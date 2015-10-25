@@ -10,7 +10,7 @@ namespace Daily
             var msg = new MessageBuilder(new FilesHandler().getAllAndroidFiles());
             new FileWriter().Write(msg.ReplacePlaceHolders.GetTextMessage());
             new FileWriter().Write(msg.TestsHandler.FailedTests, msg.Builds);
-            new MailSender().SendMail(msg.ReplacePlaceHolders.GetHtmlMessage(), msg.SomeVersion);
+            new MailSender().SendMail(msg.ReplacePlaceHolders.GetHtmlMessage(), msg.Versions);
         }
     }
 }
