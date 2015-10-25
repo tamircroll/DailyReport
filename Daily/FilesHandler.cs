@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Daily
 {
@@ -9,25 +11,47 @@ namespace Daily
     {
         public List<List<string>> getAllAndroidFiles()
         {
+            const string folder = "c:/DailyReport/";
             var files = new List<List<string>>
             {
-                new List<string>(
+/*                new List<string>(
                     new List<string> {"TechnicianView"}
-                        .Concat(File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_Technician_View.log", Encoding.UTF8))),
+                        .Concat(File.ReadAllLines(getLatestLogPath(folder,"Technician View"), Encoding.UTF8))),*/
                 new List<string>(
                     new List<string> {"FirstExperience"}
-                        .Concat(File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_First_Experience.log",
+                        .Concat(File.ReadAllLines(getLatestLogPath(folder,"First Experience"),
                             Encoding.UTF8))),
                 new List<string>(
                     new List<string> {"OngoingValue"}
-                        .Concat(File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_Ongoing_Value.log", Encoding.UTF8))),
+                        .Concat(File.ReadAllLines(getLatestLogPath(folder,"Ongoing Value"), Encoding.UTF8))),
                 new List<string>(
                     new List<string> {"TechExpertExperienceTests"}
-                        .Concat(File.ReadAllLines("c:/DailyReport/E2E_Tests_-_Appium_Tech_Expert_Experience.log",
+                        .Concat(File.ReadAllLines(getLatestLogPath(folder,"Tech Expert Experience"),
                             Encoding.UTF8)))
             };
 
             return files;
+        }
+
+        private string getLatestLogPath(string folder, string suiteName)
+        {
+            var pattern = suiteName.Split(' ').Aggregate("", (current, s) => current + (".*" + s)) + @".*(\d{3}).*\.log";
+            var regex = new Regex(pattern);
+            var toReturn = "";
+            var maxBuildNumber = -1;
+
+            foreach (var file in Directory.GetFiles(folder))
+            {
+                if (!regex.IsMatch(file)) continue;
+                var buildNumber = Int32.Parse(regex.Match(file).Groups[1].Value);
+                if (buildNumber <= maxBuildNumber) continue;
+                maxBuildNumber = buildNumber;
+                toReturn = file;
+            }
+            
+            if (toReturn == "")
+                throw new FileNotFoundException();
+            return toReturn;
         }
 
         public static List<List<string>> getAllFilesFromDirectory(string folderPath, string desclude)
