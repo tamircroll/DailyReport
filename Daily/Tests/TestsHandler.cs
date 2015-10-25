@@ -25,7 +25,6 @@ namespace Daily.Tests
 
             for (int i = 0; i < fileLines.Count; i++)
             {
-                if (fileLines[i].Contains("marked as Skipped")) continue;
                 if (fileLines[i].Contains("] Test ignored:"))
                 {
                     addIgnored(new Test(fileLines[i] + i, suiteName, build, ""));
@@ -39,7 +38,7 @@ namespace Daily.Tests
                     addPassed(new Test(fileLines[i] + i, suiteName, build, ""));
                 }
 
-                else if (fileLines[i].Contains("Fail"))
+                else if (fileLines[i].Contains("Fail") && !fileLines[i].Contains("marked as Skipped"))
                 {
                     i += 4;
                     if (fileLines[i].Contains("SkipException"))

@@ -14,9 +14,9 @@ namespace Daily
             const string folder = "c:/DailyReport/";
             var files = new List<List<string>>
             {
-/*                new List<string>(
+                new List<string>(
                     new List<string> {"TechnicianView"}
-                        .Concat(File.ReadAllLines(getLatestLogPath(folder,"Technician View"), Encoding.UTF8))),*/
+                        .Concat(File.ReadAllLines(getLatestLogPath(folder,"Technician View"), Encoding.UTF8))),
                 new List<string>(
                     new List<string> {"FirstExperience"}
                         .Concat(File.ReadAllLines(getLatestLogPath(folder,"First Experience"),
@@ -31,27 +31,6 @@ namespace Daily
             };
 
             return files;
-        }
-
-        private string getLatestLogPath(string folder, string suiteName)
-        {
-            var pattern = suiteName.Split(' ').Aggregate("", (current, s) => current + (".*" + s)) + @".*(\d{3}).*\.log";
-            var regex = new Regex(pattern);
-            var toReturn = "";
-            var maxBuildNumber = -1;
-
-            foreach (var file in Directory.GetFiles(folder))
-            {
-                if (!regex.IsMatch(file)) continue;
-                var buildNumber = Int32.Parse(regex.Match(file).Groups[1].Value);
-                if (buildNumber <= maxBuildNumber) continue;
-                maxBuildNumber = buildNumber;
-                toReturn = file;
-            }
-            
-            if (toReturn == "")
-                throw new FileNotFoundException();
-            return toReturn;
         }
 
         public static List<List<string>> getAllFilesFromDirectory(string folderPath, string desclude)
@@ -87,6 +66,31 @@ namespace Daily
             }
 
             return name.Remove(name.Length - 1) + ".txt";
+        }
+
+        private string getLatestLogPath(string folder, string suiteName)
+        {
+            var pattern = suiteName.Split(' ').Aggregate("", (current, s) => current + (".*" + s)) + @".*(\d{3}).*\.log";
+            var regex = new Regex(pattern);
+            var toReturn = "";
+            var maxBuildNumber = -1;
+
+            foreach (var file in Directory.GetFiles(folder))
+            {
+                if (regex.IsMatch(file))
+                {
+                    var buildNumber = Int32.Parse(regex.Match(file).Groups[1].Value);
+                    if (buildNumber > maxBuildNumber)
+                    {
+                        maxBuildNumber = buildNumber;
+                        toReturn = file;
+                    }
+                }
+            }
+
+            if (toReturn == "")
+                throw new FileNotFoundException();
+            return toReturn;
         }
     }
 }
