@@ -45,7 +45,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Outputers\FileWriter.cs" />
     <Compile Include="Outputers\MailSender.cs" />
-    <Compile Include="Tests\IssueWithFactory.cs" />
+    <Compile Include="Tests\IssuesFactory.cs" />
     <Compile Include="Tests\Test.cs" />
     <Compile Include="Tests\TestHelper.cs" />
     <Compile Include="Tests\TestsHandler.cs" />
