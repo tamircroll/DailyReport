@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Daily.Tests
 {
-    static class IssueWithFactory
+    static class IssuesFactory
     {
         public static IssueWith Get(string msg)
         {
@@ -42,6 +42,11 @@ namespace Daily.Tests
             "Page object of type InCallPageObject failed to load",
             "The following notification was found, but was not supposed to",
             "Page object of type HomeViewPageObject failed to load. Missing elements",
+            "waiting for Install Add On button to become clickable",
+            "ContextIsAvailableWaitCondition Timed out while waiting for",
+            "Page object of type NoConnectivityPageObject failed to load",
+            "Page object of type WifiSetting failed to load",
+            "Timed out after 10000ms waiting for underlying Observable",
         };
 
         static private readonly List<string> IssueWithAutomationPlatform = new List<string>
@@ -53,7 +58,7 @@ namespace Daily.Tests
             "WebDriverException",
             @"AppiumSeleniumAdb_Launcher\Resources\adb.exe -H",
             "Waiter Condition: Timed out while waiting for: Waiting for HomeTestsHelper service to be online",
-
+            "Timed out while waiting for: Waiting for HomeTestsHelper service to be online"
         };
     }
 }

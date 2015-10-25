@@ -71,13 +71,15 @@ namespace Daily.Tests
 
         private string getLogsIo(List<string> fileLines, int i)
         {
-            while (i < fileLines.Count)
+            int minLineToSearch = i - 50;
+            while (i > minLineToSearch)
             {
                 if (fileLines[i].Contains(" ++++++ Link to Logz.io (contains all logs) for test name: "))
                 {
                     return fileLines[i + 1];
                 }
-                i++;
+
+                i--;
             }
             return "Could not find logzLio link";
         }
@@ -156,7 +158,7 @@ namespace Daily.Tests
 
             foreach (KeyValuePair<string, List<Test>> error in FailedTests)
             {
-                if (IssueWithFactory.Get(error.Key) == issueType)
+                if (IssuesFactory.Get(error.Key) == issueType)
                 {
                     toReturn.Add(error.Key, error.Value);
                 }
