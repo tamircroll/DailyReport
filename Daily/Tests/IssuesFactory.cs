@@ -47,7 +47,11 @@ namespace Daily.Tests
             "Page object of type NoConnectivityPageObject failed to load",
             "Page object of type WifiSetting failed to load",
             "Timed out after 10000ms waiting for underlying Observable",
-            "Notification of type",
+            "to become clickable",
+            "Page object of type AzureActiveDirectoryLoginPageObject failed to load",
+            "DeviceGroupSection failed to load",
+			"Notification of type",
+            "Notification Settings failed to load",
         };
 
         static private readonly List<string> IssueWithAutomationPlatform = new List<string>
