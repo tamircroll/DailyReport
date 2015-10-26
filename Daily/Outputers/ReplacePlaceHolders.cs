@@ -44,7 +44,7 @@ namespace Daily
             return _messageBuilder.Message.ToRawHtml()
                 .Replace(SPAN_SMALL, "<span style='font-size: 10pt'>")
                 .Replace(SPAN_RED, "<span style = 'color:red'>")
-                .Replace(SPAN_GREEN, "<span style = 'color:green'>")
+                .Replace(SPAN_GREEN, "<span style = 'color:darkgreen'>")
                 .Replace(CLOSE_SPAN, "</span>")
                 .Replace(LINE, "<br>")
                 .Replace(DIV_BOLD_UNDERLINE, "<div style='text-decoration: underline; font-weight: bold;'>")

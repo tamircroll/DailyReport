@@ -59,8 +59,8 @@ namespace Daily.Tests
             string logzIO = getLogsIo(fileLines, i);
             string build = BuildHandler.getBuildNumber(fileLines[1]);
             string testName = fileLines[i - 6].Replace(" Test name: ", "");
-            testName = string.Format("{0}{1}{2}{3} ({4}){2}", ReplacePlaceHolders.SPAN_RED, testName,
-                ReplacePlaceHolders.CLOSE_SPAN, ReplacePlaceHolders.SPAN_GREEN, fileLines[0]);
+            testName = string.Format("{0}{1}{2}{3} ({4}){2}", ReplacePlaceHolders.SPAN_GREEN, testName,
+                ReplacePlaceHolders.CLOSE_SPAN, ReplacePlaceHolders.SPAN_RED, fileLines[0]);
 
             string error = fileLines[i];
             testName += TestHelper.GetEndOfTestName(ref error, fileLines, ref i);
