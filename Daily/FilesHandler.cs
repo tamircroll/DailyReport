@@ -20,7 +20,17 @@ namespace Daily
                 GetTestsList("TechExpertExperience")
             };
             list.RemoveAll(item => item == null);
+            getAndUpdateArtifactsLink(list);
             return list;
+        }
+
+        private void getAndUpdateArtifactsLink(List<List<string>> list)
+        {
+            foreach (var suite in list)
+            {
+                var url = suite[4].Replace("TeamCity URL ","") + "&tab=artifacts";
+                suite[0] = new LinkCreator().makeLink(suite[0], url);
+            }
         }
 
         private List<string> GetTestsList(string suite)
