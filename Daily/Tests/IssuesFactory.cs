@@ -51,6 +51,7 @@ namespace Daily.Tests
             "Page object of type AzureActiveDirectoryLoginPageObject failed to load",
             "DeviceGroupSection failed to load",
 			"Notification of type",
+            "Notification Settings failed to load",
         };
 
         static private readonly List<string> IssueWithAutomationPlatform = new List<string>
