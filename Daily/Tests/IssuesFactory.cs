@@ -47,6 +47,7 @@ namespace Daily.Tests
             "Page object of type NoConnectivityPageObject failed to load",
             "Page object of type WifiSetting failed to load",
             "Timed out after 10000ms waiting for underlying Observable",
+            "Notification of type",
         };
 
         static private readonly List<string> IssueWithAutomationPlatform = new List<string>
@@ -58,7 +59,9 @@ namespace Daily.Tests
             "WebDriverException",
             @"AppiumSeleniumAdb_Launcher\Resources\adb.exe -H",
             "Waiter Condition: Timed out while waiting for: Waiting for HomeTestsHelper service to be online",
-            "Timed out while waiting for: Waiting for HomeTestsHelper service to be online"
+            "Timed out while waiting for: Waiting for HomeTestsHelper service to be online",
+            "SSH connection and auth failed",
+            "didn't finish within the time-out",
         };
     }
 }
