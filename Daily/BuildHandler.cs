@@ -26,5 +26,15 @@ namespace Daily
             return all;
         }
 
+        public static string getBuildAsLink(string buildName, List<string> fileLines)
+        {
+            string link = fileLines[4].Replace("TeamCity URL ", "") + "&tab=artifacts";
+            return new LinkCreator().makeLink(buildName, link);
+        }
+
+        public static string getBuildAsLink(List<string> fileLines)
+        {
+            return getBuildAsLink(fileLines[0], fileLines);
+        }
     }
 }

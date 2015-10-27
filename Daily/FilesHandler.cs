@@ -19,6 +19,7 @@ namespace Daily
                 GetTestsList("OngoingValue"),
                 GetTestsList("TechExpertExperience")
             };
+
             list.RemoveAll(item => item == null);
             getAndUpdateArtifactsLink(list);
             return list;
@@ -28,8 +29,7 @@ namespace Daily
         {
             foreach (var suite in list)
             {
-                var url = suite[4].Replace("TeamCity URL ","") + "&tab=artifacts";
-                suite[0] = new LinkCreator().makeLink(suite[0], url);
+                suite[0] = BuildHandler.getBuildAsLink(suite);
             }
         }
 

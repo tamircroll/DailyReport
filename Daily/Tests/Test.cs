@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using HtmlAgilityPack;
 
 namespace Daily
 {
@@ -7,16 +8,16 @@ namespace Daily
     {
         private string linkToLogzIO;
 
-        public Test(string name, string suite, string buildNumber, string linkToLogzIo)
+        public Test(string name, string build, string buildNumber, string linkToLogzIo)
         {
             Name = name;
-            Suite = suite;
+            Build = build;
             BuildNumber = buildNumber;
             LinkToLogzIO = linkToLogzIo;
         }
 
         public string Name { get; set; }
-        public string Suite { get; set; }
+        public string Build { get; set; }
         public string BuildNumber { get; set; }
 
         public string LinkToLogzIO
@@ -24,7 +25,6 @@ namespace Daily
             get { return linkToLogzIO; }
             private set { linkToLogzIO = new LinkCreator().makeLink("logz.Io Link", value); }
         }
-
 
         public override string ToString()
         {
@@ -34,12 +34,7 @@ namespace Daily
         public bool isFirstTimeToGetError(string error, string currFileName)
         {
             List<List<string>> files = FilesHandler.getAllFilesFromDirectory(@"C:\DailyReport\OldReports", currFileName);
-            foreach (var file in files)
-            {
-                if (file.Any(x => x.Contains(FilesHandler.setErrorAndTestName(error, Name))))
-                    return true;
-            }
-            return false;
+            return files.Any(file => file.Any(line => line.Contains(FilesHandler.setErrorAndTestName(error, Name))));
         }
     }
 }

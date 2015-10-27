@@ -14,20 +14,20 @@ namespace Daily.Tests
         {
             foreach (var file in files)
             {
-                string suiteName = file[0];
-                addSuiteToTestsHandler(file, suiteName);
+                string suiteNameAndLink = file[0];
+                addSuiteToTestsHandler(file, suiteNameAndLink);
             }
         }
 
         public void addSuiteToTestsHandler(List<string> fileLines, string suiteName)
         {
-            string build = BuildHandler.getBuildNumber(fileLines[1]);
+            string buildNumber = BuildHandler.getBuildNumber(fileLines[1]);
 
             for (int i = 0; i < fileLines.Count; i++)
             {
                 if (fileLines[i].Contains("] Test ignored:"))
                 {
-                    addIgnored(new Test(fileLines[i] + i, suiteName, build, ""));
+                    addIgnored(new Test(fileLines[i] + i, suiteName, buildNumber, ""));
                 }
 
                 if (!fileLines[i].StartsWith(" Test name: ")) continue;
@@ -35,7 +35,7 @@ namespace Daily.Tests
                 i += 2;
                 if (fileLines[i].Contains("Success"))
                 {
-                    addPassed(new Test(fileLines[i] + i, suiteName, build, ""));
+                    addPassed(new Test(fileLines[i] + i, suiteName, buildNumber, ""));
                 }
 
                 else if (fileLines[i].Contains("Fail") && !fileLines[i].Contains("marked as Skipped"))
@@ -43,7 +43,7 @@ namespace Daily.Tests
                     i += 4;
                     if (fileLines[i].Contains("SkipException"))
                     {
-                        addIgnored(new Test(fileLines[i] + i, suiteName, build, ""));
+                        addIgnored(new Test(fileLines[i] + i, suiteName, buildNumber, ""));
                         i += 5;
                     }
                     else
@@ -59,11 +59,11 @@ namespace Daily.Tests
             string logzIO = getLogsIo(fileLines, i);
             string build = BuildHandler.getBuildNumber(fileLines[1]);
             string testName = fileLines[i - 6].Replace(" Test name: ", "");
-            testName = string.Format("{0}{1}{2}{3} ({4}){2}", ReplacePlaceHolders.SPAN_GREEN, testName,
-                ReplacePlaceHolders.CLOSE_SPAN, ReplacePlaceHolders.SPAN_RED, fileLines[0]);
+            testName = string.Format("{0}{1}{2}{3} {2}", ReplacePlaceHolders.SPAN_GREEN, testName,
+                ReplacePlaceHolders.CLOSE_SPAN, ReplacePlaceHolders.SPAN_RED);
 
             string error = fileLines[i];
-            testName += TestHelper.GetEndOfTestName(ref error, fileLines, ref i);
+            testName += TestHelper.GetEndOfTestName(ref error);
             ErrorHandler.setErrorName(ref error, fileLines, ref i);
             addFailure(error, new Test(testName, suiteName, build, logzIO));
         }

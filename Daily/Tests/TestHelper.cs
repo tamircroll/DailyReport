@@ -8,7 +8,7 @@ namespace Daily.Tests
 {
     class TestHelper
     {
-        public static string GetEndOfTestName(ref string error, List<string> fileLines, ref int i)
+        public static string GetEndOfTestName(ref string error)
         {
             string addToEndOfTestName = "";
             if (

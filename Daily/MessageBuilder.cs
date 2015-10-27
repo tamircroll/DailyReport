@@ -45,20 +45,23 @@ namespace Daily
 
         private void addSummeariesToOutput()
         {
-            addTestsSummaryToOutput("By Suite ", new TeamCityHandler().getAllSuitesTestsSummaries(_files));
+            addTestsSummaryToOutput("By Build    ", new TeamCityHandler().getAllSuitesTestsSummaries(_files));
             addTestsSummaryToOutput("Actual count", TestsHandler.getTestsCount());
         }
 
         private void addTestsToOutput(TestsHandler testsHandler)
         {
-            _output.Add(String.Format("{0}{1}Issues with application:{2}", ReplacePlaceHolders.LINE, ReplacePlaceHolders.DIV_BOLD_UNDERLINE, ReplacePlaceHolders.CLOSE_DIV));
+            addIssueTitle("Issues with application:");
             addErrorsDescriptionToOutput(testsHandler.getIssuesWithApp());
-            _output.Add(String.Format("{0}{1}Automation development failures:{2}", ReplacePlaceHolders.LINE, ReplacePlaceHolders.DIV_BOLD_UNDERLINE,
-                ReplacePlaceHolders.CLOSE_DIV));
+            addIssueTitle("Automation development failures:");
             addErrorsDescriptionToOutput(testsHandler.getIssuesWithAutomation());
-            _output.Add(String.Format("{0}{1}UnKnown:{2}", ReplacePlaceHolders.LINE,
-                ReplacePlaceHolders.DIV_BOLD_UNDERLINE, ReplacePlaceHolders.CLOSE_DIV));
+            addIssueTitle("UnKnown:");
             addErrorsDescriptionToOutput(testsHandler.getIssuesWithUnKnown());
+        }
+
+        private void addIssueTitle(string issuesWith)
+        {
+            _output.Add(String.Format("{0}{1}" + issuesWith + "{2}", ReplacePlaceHolders.LINE, ReplacePlaceHolders.DIV_BOLD_UNDERLINE, ReplacePlaceHolders.CLOSE_DIV));
         }
 
         private void addTestsSummaryToOutput(string title, List<int> testsCountByResults)
@@ -91,8 +94,8 @@ namespace Daily
                         ? "*"
                         : "";
 
-                    _output.Add(string.Format(@"{0}{0}{0}{0}{1}{2}. {3}{4}. {5}{6}{7}", ReplacePlaceHolders.SPACE,
-                        ReplacePlaceHolders.SPAN_SMALL, testsCounter++, failIndicator, test, test.LinkToLogzIO,
+                    _output.Add(string.Format(@"{0}{0}{0}{0}{1}{2}. {3}{4}. {5},   {6}{7}{8}", ReplacePlaceHolders.SPACE,
+                        ReplacePlaceHolders.SPAN_SMALL, testsCounter++, failIndicator, test, test.Build, test.LinkToLogzIO,
                         ReplacePlaceHolders.CLOSE_SPAN, ReplacePlaceHolders.LINE));
                 }
                 _output.Add(ReplacePlaceHolders.LINE);
