@@ -17,7 +17,10 @@ namespace Daily
                 GetTestsList("TechnicianView"),
                 GetTestsList("FirstExperience"),
                 GetTestsList("OngoingValue"),
-                GetTestsList("TechExpertExperience")
+                GetTestsList("TechExpertExperience"),
+                GetTestsList("MultiDevicesTeam"),
+                GetTestsList("EnableMorePartners")
+
             };
 
             list.RemoveAll(item => item == null);
