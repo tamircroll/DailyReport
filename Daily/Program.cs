@@ -1,4 +1,5 @@
-﻿using System.Runtime.ExceptionServices;
+﻿using System.Collections.Generic;
+using System.Runtime.ExceptionServices;
 
 namespace Daily
 {
@@ -7,9 +8,10 @@ namespace Daily
         private static void Main()
         {
 //            new PrintAllTestsNames().print();
-            var msg = new MessageBuilder(new FilesHandler().GetAllAndroidFiles());
+            List<List<string>> allFiles = new FilesHandler().GetAllAndroidFiles();
+            var msg = new MessageBuilder(allFiles);
             new FileWriter().Write(msg.ReplacePlaceHolders.GetTextMessage());
-            new FileWriter().Write(msg.TestsHandler.FailedTests, msg.Builds);
+            new FileWriter().Write(msg.TestsHandler.FailedTests, BuildHandler.getAllBuildsNumbers(allFiles));
             new MailSender().SendMail(msg.ReplacePlaceHolders.GetHtmlMessage(), msg.Versions);
         }
     }

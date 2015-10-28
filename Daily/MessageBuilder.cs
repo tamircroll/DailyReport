@@ -9,12 +9,11 @@ namespace Daily
     {
         public readonly string Message, Versions;
         public readonly TestsHandler TestsHandler;
-        public readonly List<string> Builds;
         public readonly ReplacePlaceHolders ReplacePlaceHolders;
-
         public const int FAILED = 0;
         public const int SUCCESS = 1;
         public const int IGNORED = 2;
+
         private readonly List<string> _output = new List<string>();
         private readonly List<List<string>> _files;
 
@@ -22,7 +21,6 @@ namespace Daily
         {
             _files = files;
             TestsHandler = new TestsHandler(_files);
-            Builds = BuildHandler.getAllBuildsNumbers(_files);
             Message = buildMessage();
             Versions = VersionsHandler.getVersionsStr(_files);
             ReplacePlaceHolders = new ReplacePlaceHolders(this);
@@ -32,7 +30,7 @@ namespace Daily
         {
             addSuitesVersionsToOutput();
             addSummeariesToOutput();
-            addTestsToOutput(TestsHandler);
+            _output.Add(TestsHandler.ToString());
 
             return string.Concat(_output.ToArray());
         }
@@ -45,23 +43,9 @@ namespace Daily
 
         private void addSummeariesToOutput()
         {
-            addTestsSummaryToOutput("By Build    ", new TeamCityHandler().getAllSuitesTestsSummaries(_files));
+            addTestsSummaryToOutput(string.Format("By Build{0}{0}{0}{0}{0}{0}", ReplacePlaceHolders.SPACE),
+                new TeamCityHandler().getAllSuitesTestsSummaries(_files));
             addTestsSummaryToOutput("Actual count", TestsHandler.getTestsCount());
-        }
-
-        private void addTestsToOutput(TestsHandler testsHandler)
-        {
-            addIssueTitle("Issues with application:");
-            addErrorsDescriptionToOutput(testsHandler.getIssuesWithApp());
-            addIssueTitle("Automation development failures:");
-            addErrorsDescriptionToOutput(testsHandler.getIssuesWithAutomation());
-            addIssueTitle("UnKnown:");
-            addErrorsDescriptionToOutput(testsHandler.getIssuesWithUnKnown());
-        }
-
-        private void addIssueTitle(string issuesWith)
-        {
-            _output.Add(String.Format("{0}{1}" + issuesWith + "{2}", ReplacePlaceHolders.LINE, ReplacePlaceHolders.DIV_BOLD_UNDERLINE, ReplacePlaceHolders.CLOSE_DIV));
         }
 
         private void addTestsSummaryToOutput(string title, List<int> testsCountByResults)
@@ -76,30 +60,6 @@ namespace Daily
             sb.AppendFormat("Ignored: {0}, ", testsCountByResults[IGNORED]);
             sb.AppendFormat("Coverage: {0}%", coverage);
             _output.Add(sb + ReplacePlaceHolders.LINE);
-        }
-
-        private void addErrorsDescriptionToOutput(SortedDictionary<string, List<Test>> errorsToTests)
-        {
-            _output.Add(ReplacePlaceHolders.LINE + ReplacePlaceHolders.LINE);
-            foreach (KeyValuePair<string, List<Test>> errorToTests in errorsToTests)
-            {
-                int testsCounter = 1;
-                var errorName = errorToTests.Key;
-                var tests = errorToTests.Value;
-
-                _output.Add(string.Format("{0}: {1}", errorName, ReplacePlaceHolders.LINE));
-                foreach (Test test in tests)
-                {
-                    string failIndicator = test.isFirstTimeToGetError(errorName, FilesHandler.getNameByBuilds(Builds))
-                        ? "*"
-                        : "";
-
-                    _output.Add(string.Format(@"{0}{0}{0}{0}{1}{2}. {3}{4}. {5},   {6}{7}{8}", ReplacePlaceHolders.SPACE,
-                        ReplacePlaceHolders.SPAN_SMALL, testsCounter++, failIndicator, test, test.Build, test.LinkToLogzIO,
-                        ReplacePlaceHolders.CLOSE_SPAN, ReplacePlaceHolders.LINE));
-                }
-                _output.Add(ReplacePlaceHolders.LINE);
-            }
         }
     }
 

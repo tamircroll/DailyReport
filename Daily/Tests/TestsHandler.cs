@@ -9,14 +9,28 @@ namespace Daily.Tests
         private readonly SortedDictionary<string, List<Test>> errorlsToFailedTests = new SortedDictionary<string, List<Test>>();
         private readonly List<Test> passedTests = new List<Test>();
         private readonly List<Test> ignoredTests = new List<Test>();
+        private List<string> Builds;
 
         public TestsHandler(List<List<string>> files)
         {
+            Builds = BuildHandler.getAllBuildsNumbers(files);
             foreach (var file in files)
             {
                 string suiteNameAndLink = file[0];
                 addSuiteToTestsHandler(file, suiteNameAndLink);
             }
+        }
+
+        public override string ToString()
+        {
+            string toReturn = "";
+            toReturn += addIssueTitle("Issues with application:");
+            toReturn += addErrorsDescriptionToOutput(getFailedTestsByIssue(IssueWith.Application));
+            toReturn += addIssueTitle("Automation development failures:");
+            toReturn += addErrorsDescriptionToOutput(getFailedTestsByIssue(IssueWith.Automation));
+            toReturn += addIssueTitle("UnKnown:");
+            toReturn += addErrorsDescriptionToOutput(getFailedTestsByIssue(IssueWith.UnKnown));
+            return toReturn;
         }
 
         public void addSuiteToTestsHandler(List<string> fileLines, string suiteName)
@@ -124,30 +138,10 @@ namespace Daily.Tests
         {
             return new List<int>
             {
-                getFailedCount(),
+                FailedTests.Keys.Sum(key => FailedTests[key].Count),
                 PassedTests.Count,
                 IgnoredTests.Count
             };
-        }
-
-        public int getFailedCount()
-        {
-            return FailedTests.Keys.Sum(key => FailedTests[key].Count);
-        }
-
-        public SortedDictionary<string, List<Test>> getIssuesWithApp()
-        {
-            return getFailedTestsByIssue(IssueWith.Application);
-        }
-
-        public SortedDictionary<string, List<Test>> getIssuesWithAutomation()
-        {
-            return getFailedTestsByIssue(IssueWith.Automation);
-        }
-
-        public SortedDictionary<string, List<Test>> getIssuesWithUnKnown()
-        {
-            return getFailedTestsByIssue(IssueWith.UnKnown);
         }
 
         private SortedDictionary<string, List<Test>> getFailedTestsByIssue(IssueWith issueType)
@@ -163,6 +157,38 @@ namespace Daily.Tests
             }
 
             return toReturn;
+        }
+
+        private string addIssueTitle(string issuesWith)
+        {
+            return string.Format("{0}{1}" + issuesWith + "{2}", ReplacePlaceHolders.LINE, ReplacePlaceHolders.DIV_BOLD_UNDERLINE, ReplacePlaceHolders.CLOSE_DIV);
+        }
+
+        private string addErrorsDescriptionToOutput(SortedDictionary<string, List<Test>> errorsToTests)
+        {
+            string toRetrun = "";
+            toRetrun += ReplacePlaceHolders.LINE;
+            foreach (KeyValuePair<string, List<Test>> errorToTests in errorsToTests)
+            {
+                int testsCounter = 1;
+                var errorName = errorToTests.Key;
+                var tests = errorToTests.Value;
+
+                toRetrun += string.Format("{0}: {1}", errorName, ReplacePlaceHolders.LINE);
+                foreach (Test test in tests)
+                {
+                    string failIndicator = test.isFirstTimeToGetError(errorName, FilesHandler.getNameByBuilds(Builds))
+                        ? "*"
+                        : "";
+
+                    toRetrun += string.Format(@"{0}{0}{0}{0}{1}{2}. {3}{4}. {5},   {6}{7}{8}", ReplacePlaceHolders.SPACE,
+                        ReplacePlaceHolders.SPAN_SMALL, testsCounter++, failIndicator, test, test.Build, test.LinkToLogzIO,
+                        ReplacePlaceHolders.CLOSE_SPAN, ReplacePlaceHolders.LINE);
+                }
+                toRetrun += ReplacePlaceHolders.LINE;
+            }
+
+            return toRetrun;
         }
     }
 }
