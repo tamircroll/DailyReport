@@ -74,7 +74,7 @@ namespace Daily.Tests
                 if (line.StartsWith(startWith)) return line;
             }
 
-            throw new Exception("Line that starts with '" + startWith + " Doesn't exists" );
+            return "";
         }
     }
 }

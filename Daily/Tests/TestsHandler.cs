@@ -29,11 +29,11 @@ namespace Daily.Tests
         {
             string toReturn = "";
             toReturn += addIssueTitle("Issues with application:");
-            toReturn += addErrorsDescriptionToOutput(getFailedTestsByIssue(IssueWith.Application));
+            toReturn += getErrorsDescriptionToOutput(getFailedTestsByIssue(IssueWith.Application));
             toReturn += addIssueTitle("Automation development failures:");
-            toReturn += addErrorsDescriptionToOutput(getFailedTestsByIssue(IssueWith.Automation));
+            toReturn += getErrorsDescriptionToOutput(getFailedTestsByIssue(IssueWith.Automation));
             toReturn += addIssueTitle("UnKnown:");
-            toReturn += addErrorsDescriptionToOutput(getFailedTestsByIssue(IssueWith.UnKnown));
+            toReturn += getErrorsDescriptionToOutput(getFailedTestsByIssue(IssueWith.UnKnown));
             return toReturn;
         }
 
@@ -110,7 +110,7 @@ namespace Daily.Tests
             return string.Format("{0}{1}" + issuesWith + "{2}", ReplacePlaceHolders.LINE, ReplacePlaceHolders.DIV_BOLD_UNDERLINE, ReplacePlaceHolders.CLOSE_DIV);
         }
 
-        private string addErrorsDescriptionToOutput(SortedDictionary<string, List<Test>> errorsToTests)
+        private string getErrorsDescriptionToOutput(SortedDictionary<string, List<Test>> errorsToTests)
         {
             string toRetrun = "";
             toRetrun += ReplacePlaceHolders.LINE;
