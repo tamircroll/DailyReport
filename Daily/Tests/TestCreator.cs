@@ -38,8 +38,7 @@ namespace Daily.Tests
 
         private static string getLLinkToLogzIO(List<string> testLines)
         {
-            string link = getLineThatStartWith(testLines, @"https://goo.gl/");
-            return new LinkCreator().makeLink(@"logz.Io Link", link);
+            return getLineThatStartWith(testLines, @"https://goo.gl/");
         }
 
         private static string getTestName(List<string> testLines, TestsResult result, string exception)
