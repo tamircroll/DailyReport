@@ -7,6 +7,7 @@ namespace Daily.Exceptions
         public static void setErrorName(ref string error, List<string> fileLines)
         {
             int i = fileLines.IndexOf(error);
+            error = error.Replace(" Test exception: ", "");
 
             if (
                 error.Contains(

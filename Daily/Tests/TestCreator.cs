@@ -25,8 +25,7 @@ namespace Daily.Tests
 
         private static string getException(List<string> testLines)
         {
-            string startWith = " Test exception: ";
-            string exception = getLineThatStartWith(testLines, startWith).Replace(startWith, "");
+            string exception = getLineThatStartWith(testLines, " Test exception: ");
             ErrorHandler.setErrorName(ref exception, testLines);
 
             return exception;
