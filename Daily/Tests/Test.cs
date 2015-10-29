@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using HtmlAgilityPack;
+using Daily.Tests;
 
 namespace Daily
 {
@@ -8,19 +8,23 @@ namespace Daily
     {
         private string linkToLogzIO;
 
-        public Test(string name, string build, string buildNumber, string linkToLogzIo)
+        public Test(string name, TestsResult result, string build, string buildNumber, string linkToLogzIo, string exception)
         {
             Name = name;
             Build = build;
             BuildNumber = buildNumber;
-            LinkToLogzIO = linkToLogzIo;
+            LinkToLogzIo = linkToLogzIo;
+            Result = result;
+            Error = exception;
         }
 
         public string Name { get; set; }
-        public string Build { get; set; }
+        public string Build { get; private set; }
         public string BuildNumber { get; set; }
+        public TestsResult Result { get; private set; }
+        public string Error { get; private set; }
 
-        public string LinkToLogzIO
+        public string LinkToLogzIo
         {
             get { return linkToLogzIO; }
             private set { linkToLogzIO = new LinkCreator().makeLink("logz.Io Link", value); }

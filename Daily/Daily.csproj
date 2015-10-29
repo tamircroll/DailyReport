@@ -36,6 +36,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Annotations.cs" />
     <Compile Include="BuildHandler.cs" />
     <Compile Include="Exceptions\ErrorHandler.cs" />
     <Compile Include="FilesHandler.cs" />
@@ -50,8 +51,10 @@
     <Compile Include="Outputers\MailSender.cs" />
     <Compile Include="Tests\IssuesFactory.cs" />
     <Compile Include="Tests\Test.cs" />
+    <Compile Include="Tests\TestCreator.cs" />
     <Compile Include="Tests\TestHelper.cs" />
     <Compile Include="Tests\TestsHandler.cs" />
+    <Compile Include="Tests\TestsResult.cs" />
     <Compile Include="VersionsHandler.cs" />
   </ItemGroup>
   <ItemGroup>

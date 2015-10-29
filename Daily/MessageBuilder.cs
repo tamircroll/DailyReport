@@ -7,7 +7,7 @@ namespace Daily
 {
     public class MessageBuilder
     {
-        public readonly string Message, Versions;
+        public readonly string Message;
         public readonly TestsHandler TestsHandler;
         public readonly ReplacePlaceHolders ReplacePlaceHolders;
         public const int FAILED = 0;
@@ -22,7 +22,6 @@ namespace Daily
             _files = files;
             TestsHandler = new TestsHandler(_files);
             Message = buildMessage();
-            Versions = VersionsHandler.getVersionsStr(_files);
             ReplacePlaceHolders = new ReplacePlaceHolders(this);
         }
 

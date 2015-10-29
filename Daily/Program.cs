@@ -11,8 +11,8 @@ namespace Daily
             List<List<string>> allFiles = new FilesHandler().GetAllAndroidFiles();
             var msg = new MessageBuilder(allFiles);
             new FileWriter().Write(msg.ReplacePlaceHolders.GetTextMessage());
-            new FileWriter().Write(msg.TestsHandler.FailedTests, BuildHandler.getAllBuildsNumbers(allFiles));
-            new MailSender().SendMail(msg.ReplacePlaceHolders.GetHtmlMessage(), msg.Versions);
+            new FileWriter().Write(msg.TestsHandler.FailedTests,msg.TestsHandler.Builds);
+            new MailSender().SendMail(msg.ReplacePlaceHolders.GetHtmlMessage(), msg.TestsHandler.Versions);
         }
     }
 }

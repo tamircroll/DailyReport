@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Daily.Tests
+﻿namespace Daily.Tests
 {
     class TestHelper
     {
-        public static string GetEndOfTestName(ref string error)
+        public static string GetEndOfTestName(string error)
         {
             string addToEndOfTestName = "";
             if (

@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Daily.Exceptions
 {
     static class ErrorHandler
     {
-        public static void setErrorName(ref string error, List<string> fileLines, ref int i)
+        public static void setErrorName(ref string error, List<string> fileLines)
         {
+            int i = fileLines.IndexOf(error);
+
             if (
                 error.Contains(
                     @"concurrent.TimeoutException: Waiter Condition: AnalyticsFetcherWaitCondition Timed out while waiting for:"))
@@ -36,7 +34,6 @@ namespace Daily.Exceptions
             else if (error.Contains("Unable to provision, see the following errors"))
             {
                 error = error.Replace(", see the following errors:", ". ");
-                i += 4;
                 error += fileLines[i]
                     .Replace(
                         "1) Error in custom provider, java.lang.Exception: Failed providing appium driver. Exception: org.openqa.selenium.WebDriverException: ",

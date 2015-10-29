@@ -1,24 +1,49 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Daily.Exceptions;
 
 namespace Daily.Tests
 {
     public class TestsHandler
     {
-        private readonly SortedDictionary<string, List<Test>> errorlsToFailedTests = new SortedDictionary<string, List<Test>>();
-        private readonly List<Test> passedTests = new List<Test>();
-        private readonly List<Test> ignoredTests = new List<Test>();
-        private List<string> Builds;
+        private readonly SortedDictionary<string, List<Test>> _errorlsToFailedTests = new SortedDictionary<string, List<Test>>();
+        private readonly List<Test> _passedTests = new List<Test>();
+        private readonly List<Test> _ignoredTests = new List<Test>();
+        
+        public readonly List<string> Builds;
+        public readonly string Versions;
 
         public TestsHandler(List<List<string>> files)
         {
             Builds = BuildHandler.getAllBuildsNumbers(files);
+            Versions = VersionsHandler.getVersionsStr(files);
             foreach (var file in files)
             {
+                string buildNumber = BuildHandler.getBuildNumber(file[1]);
                 string suiteNameAndLink = file[0];
-                addSuiteToTestsHandler(file, suiteNameAndLink);
+                List<List<string>> fileSplitedToTests = splitFileToTests(file);
+                addSuiteToTestsHandler(fileSplitedToTests, suiteNameAndLink, buildNumber);
             }
+        }
+
+        private List<List<string>> splitFileToTests(List<string> file)
+        {
+            List<List<string>> tests = new List<List<string>>();
+            List<string> temp = new List<string>();
+            foreach (string line in file)
+            {
+                if (line.StartsWith(" ++++++ Starting test:") || line.Contains("] Test ignored:"))
+                {
+                    tests.Add(temp);
+                    temp = new List<string> {line};
+                }
+                else
+                {
+                    temp.Add(line);
+                }
+            }
+            tests.Add(temp);
+            tests.RemoveAt(0);
+            return tests;
         }
 
         public override string ToString()
@@ -33,105 +58,34 @@ namespace Daily.Tests
             return toReturn;
         }
 
-        public void addSuiteToTestsHandler(List<string> fileLines, string suiteName)
+        private void addSuiteToTestsHandler(List<List<string>> tests, string suiteName, string buildNumber)
         {
-            string buildNumber = BuildHandler.getBuildNumber(fileLines[1]);
-
-            for (int i = 0; i < fileLines.Count; i++)
+            foreach (List<string> test in tests)
             {
-                if (fileLines[i].Contains("] Test ignored:"))
-                {
-                    addIgnored(new Test(fileLines[i] + i, suiteName, buildNumber, ""));
-                }
-
-                if (!fileLines[i].StartsWith(" Test name: ")) continue;
-
-                i += 2;
-                if (fileLines[i].Contains("Success"))
-                {
-                    addPassed(new Test(fileLines[i] + i, suiteName, buildNumber, ""));
-                }
-
-                else if (fileLines[i].Contains("Fail") && !fileLines[i].Contains("marked as Skipped"))
-                {
-                    i += 4;
-                    if (fileLines[i].Contains("SkipException"))
-                    {
-                        addIgnored(new Test(fileLines[i] + i, suiteName, buildNumber, ""));
-                        i += 5;
-                    }
-                    else
-                    {
-                        doIfFail(fileLines, suiteName, ref i);
-                    }
-                }
+                Test tempTest = TestCreator.create(test, suiteName, buildNumber);
+                if (tempTest != null) addTestToMap(tempTest);
             }
         }
 
-        private void doIfFail(List<string> fileLines, string suiteName, ref int i)
+        private void addTestToMap(Test test)
         {
-            string logzIO = getLogsIo(fileLines, i);
-            string build = BuildHandler.getBuildNumber(fileLines[1]);
-            string testName = fileLines[i - 6].Replace(" Test name: ", "");
-            testName = string.Format("{0}{1}{2}{3} {2}", ReplacePlaceHolders.SPAN_GREEN, testName,
-                ReplacePlaceHolders.CLOSE_SPAN, ReplacePlaceHolders.SPAN_RED);
-
-            string error = fileLines[i];
-            testName += TestHelper.GetEndOfTestName(ref error);
-            ErrorHandler.setErrorName(ref error, fileLines, ref i);
-            addFailure(error, new Test(testName, suiteName, build, logzIO));
-        }
-
-        private string getLogsIo(List<string> fileLines, int i)
-        {
-            while (!fileLines[i].StartsWith(" ++++++ Starting test: "))
+            switch (test.Result)
             {
-                if (fileLines[i].StartsWith(@"https://goo.gl/"))
-                {
-                    return fileLines[i];
-                }
-
-                i--;
+                case TestsResult.Failed:
+                    addFailure(test.Error, test);
+                    break;
+                case TestsResult.Ignored:
+                    _ignoredTests.Add(test);
+                    break;
+                case TestsResult.Success:
+                    _passedTests.Add(test);
+                    break;
             }
-            return "Could not find logzLio link";
         }
 
         public SortedDictionary<string, List<Test>> FailedTests
         {
-            get { return errorlsToFailedTests; }
-        }
-
-        public List<Test> PassedTests
-        {
-            get { return passedTests; } 
-        }
-
-        public List<Test> IgnoredTests
-        {
-            get { return ignoredTests; } 
-        }
-
-        public void addFailure(string error, Test test)
-        {
-            if (!errorlsToFailedTests.ContainsKey(error))
-            {
-                errorlsToFailedTests.Add(error, new List<Test>());
-            }
-
-            if (!errorlsToFailedTests[error].Contains(test))
-            {
-                errorlsToFailedTests[error].Add(test);
-            }
-        }
-
-        public void addPassed(Test test)
-        {
-            passedTests.Add(test);
-        }
-
-        public void addIgnored(Test test)
-        {
-            ignoredTests.Add(test);
+            get { return _errorlsToFailedTests; }
         }
 
         public List<int> getTestsCount()
@@ -139,9 +93,22 @@ namespace Daily.Tests
             return new List<int>
             {
                 FailedTests.Keys.Sum(key => FailedTests[key].Count),
-                PassedTests.Count,
-                IgnoredTests.Count
+                _passedTests.Count,
+                _ignoredTests.Count
             };
+        }
+
+        private void addFailure(string error, Test test)
+        {
+            if (!_errorlsToFailedTests.ContainsKey(error))
+            {
+                _errorlsToFailedTests.Add(error, new List<Test>());
+            }
+
+            if (!_errorlsToFailedTests[error].Contains(test))
+            {
+                _errorlsToFailedTests[error].Add(test);
+            }
         }
 
         private SortedDictionary<string, List<Test>> getFailedTestsByIssue(IssueWith issueType)
@@ -182,7 +149,7 @@ namespace Daily.Tests
                         : "";
 
                     toRetrun += string.Format(@"{0}{0}{0}{0}{1}{2}. {3}{4}. {5},   {6}{7}{8}", ReplacePlaceHolders.SPACE,
-                        ReplacePlaceHolders.SPAN_SMALL, testsCounter++, failIndicator, test, test.Build, test.LinkToLogzIO,
+                        ReplacePlaceHolders.SPAN_SMALL, testsCounter++, failIndicator, test, test.Build, test.LinkToLogzIo,
                         ReplacePlaceHolders.CLOSE_SPAN, ReplacePlaceHolders.LINE);
                 }
                 toRetrun += ReplacePlaceHolders.LINE;
