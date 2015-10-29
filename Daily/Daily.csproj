@@ -42,7 +42,7 @@
     <Compile Include="Exceptions\ErrorHandler.cs" />
     <Compile Include="BuildsFromFilesRetriver.cs" />
     <Compile Include="Build\IBuildRetriver.cs" />
-    <Compile Include="Io\LatestLogPathFiner.cs" />
+    <Compile Include="Io\LatestLogPathFinder.cs" />
     <Compile Include="LinkCreator.cs" />
     <Compile Include="PrintAllTestsNames.cs" />
     <Compile Include="TeamCityHandler.cs" />

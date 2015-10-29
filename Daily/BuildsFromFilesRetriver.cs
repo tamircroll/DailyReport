@@ -10,12 +10,11 @@ namespace Daily
 {
     public class BuildsFromFilesRetriver : IBuildRetriver
     {
-        private LatestLogPathFiner mLatestLogPathFiner;
+        private readonly LatestLogPathFinder mLatestLogPathFinder;
         
-
         public BuildsFromFilesRetriver()
         {
-            mLatestLogPathFiner = new LatestLogPathFiner();
+            mLatestLogPathFinder = new LatestLogPathFinder();
         }
 
         public List<TcBuild> Get()
@@ -58,7 +57,7 @@ namespace Daily
                 return new TcBuild
                 {
                     SuiteName = suite,
-                    Log = File.ReadAllLines(mLatestLogPathFiner.Find(suiteSplittedByCapitel), Encoding.UTF8).ToList()
+                    Log = File.ReadAllLines(mLatestLogPathFinder.Find(suiteSplittedByCapitel), Encoding.UTF8).ToList()
                 };
 
             }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Daily.Io
 {
-    public class LatestLogPathFiner
+    public class LatestLogPathFinder
     {
         private const string logsFolder = "c:/DailyReport/";
         public string Find(string suiteName)
