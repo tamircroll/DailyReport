@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Daily.Build;
 using Daily.Tests;
 
 namespace Daily
@@ -15,12 +16,12 @@ namespace Daily
         public const int IGNORED = 2;
 
         private readonly List<string> _output = new List<string>();
-        private readonly List<List<string>> _files;
+        private readonly List<TcBuild> _builds;
 
-        public MessageBuilder(List<List<string>> files)
+        public MessageBuilder(List<TcBuild> builds)
         {
-            _files = files;
-            TestsHandler = new TestsHandler(_files);
+            _builds = builds;
+            TestsHandler = new TestsHandler(_builds);
             Message = buildMessage();
             ReplacePlaceHolders = new ReplacePlaceHolders(this);
         }
@@ -36,14 +37,14 @@ namespace Daily
 
         private void addSuitesVersionsToOutput()
         {
-            List<string> suitesVersions = VersionsHandler.getsuitesVersions(_files);
+            List<string> suitesVersions = VersionsHandler.getsuitesVersions(_builds);
             _output.AddRange(suitesVersions);
         }
 
         private void addSummeariesToOutput()
         {
             addTestsSummaryToOutput(string.Format("By Build{0}{0}{0}{0}{0}{0}", ReplacePlaceHolders.SPACE),
-                new TeamCityHandler().getAllSuitesTestsSummaries(_files));
+                new TeamCityHandler().getAllSuitesTestsSummaries(_builds));
             addTestsSummaryToOutput("Actual count", TestsHandler.getTestsCount());
         }
 

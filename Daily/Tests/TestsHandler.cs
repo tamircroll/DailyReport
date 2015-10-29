@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Daily.Build;
 
 namespace Daily.Tests
 {
@@ -12,15 +13,15 @@ namespace Daily.Tests
         public readonly List<string> Builds;
         public readonly string Versions;
 
-        public TestsHandler(List<List<string>> files)
+        public TestsHandler(List<TcBuild> builds)
         {
-            Builds = BuildHandler.getAllBuildsNumbers(files);
-            Versions = VersionsHandler.getVersionsStr(files);
-            foreach (var file in files)
+            Builds = BuildHandler.getAllBuildsNumbers(builds);
+            Versions = VersionsHandler.getVersionsStr(builds);
+            foreach (var build in builds)
             {
-                string buildNumber = BuildHandler.getBuildNumber(file[1]);
-                string suiteNameAndLink = file[0];
-                List<List<string>> fileSplitedToTests = TestHelper.SplitFileToTests(file);
+                string buildNumber = BuildHandler.getBuildNumber(build.Log[0]);
+                string suiteNameAndLink = build.Link;
+                List<List<string>> fileSplitedToTests = TestHelper.SplitFileToTests(build);
                 addSuiteToTestsHandler(fileSplitedToTests, suiteNameAndLink, buildNumber);
             }
         }
@@ -123,7 +124,7 @@ namespace Daily.Tests
                 toRetrun += string.Format("{0}: {1}", errorName, ReplacePlaceHolders.LINE);
                 foreach (Test test in tests)
                 {
-                    string failIndicator = test.isFirstTimeToGetError(errorName, FilesHandler.getNameByBuilds(Builds))
+                    string failIndicator = test.isFirstTimeToGetError(errorName, BuildsFromFilesRetriver.getNameByBuilds(Builds))
                         ? "*"
                         : "";
 

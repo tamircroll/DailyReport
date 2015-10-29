@@ -24,11 +24,11 @@ namespace Daily
                 failedTests.TryGetValue(error, out tests);
                 foreach (Test test in tests)
                 {
-                    msg += FilesHandler.setErrorAndTestName(error, test.ToString()) + Environment.NewLine;
+                    msg += BuildsFromFilesRetriver.setErrorAndTestName(error, test.ToString()) + Environment.NewLine;
                 }
             }
 
-            string fileName = FilesHandler.getNameByBuilds(builds);
+            string fileName = BuildsFromFilesRetriver.getNameByBuilds(builds);
 
             Write(msg, "c:/DailyReport/OldReports/" + fileName);
         }

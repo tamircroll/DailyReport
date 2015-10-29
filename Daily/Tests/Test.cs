@@ -37,8 +37,8 @@ namespace Daily
 
         public bool isFirstTimeToGetError(string error, string currFileName)
         {
-            List<List<string>> files = FilesHandler.getAllFilesFromDirectory(@"C:\DailyReport\OldReports", currFileName);
-            return files.Any(file => file.Any(line => line.Contains(FilesHandler.setErrorAndTestName(error, Name))));
+            List<List<string>> files = BuildsFromFilesRetriver.getAllFilesFromDirectory(@"C:\DailyReport\OldReports", currFileName);
+            return files.Any(file => file.Any(line => line.Contains(BuildsFromFilesRetriver.setErrorAndTestName(error, Name))));
         }
     }
 }

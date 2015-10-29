@@ -38,8 +38,11 @@
   <ItemGroup>
     <Compile Include="Annotations.cs" />
     <Compile Include="BuildHandler.cs" />
+    <Compile Include="Build\Build.cs" />
     <Compile Include="Exceptions\ErrorHandler.cs" />
-    <Compile Include="FilesHandler.cs" />
+    <Compile Include="BuildsFromFilesRetriver.cs" />
+    <Compile Include="Build\IBuildRetriver.cs" />
+    <Compile Include="Io\LatestLogPathFiner.cs" />
     <Compile Include="LinkCreator.cs" />
     <Compile Include="PrintAllTestsNames.cs" />
     <Compile Include="TeamCityHandler.cs" />

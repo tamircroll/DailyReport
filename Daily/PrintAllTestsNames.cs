@@ -9,11 +9,11 @@ namespace Daily
     {
         public void print()
         {
-            List<string> allTests = new List<string>();
-            var files = new FilesHandler().GetAllAndroidFiles();
+            var allTests = new List<string>();
+            var builds = new BuildsFromFilesRetriver().Get();
 
-            foreach (var file in files)
-                allTests.AddRange(from line in file where line.StartsWith(" Test name: ") select line.Replace(" Test name: ", ""));
+            foreach (var build in builds)
+                allTests.AddRange(from line in build.Log where line.StartsWith(" Test name: ") select line.Replace(" Test name: ", ""));
              File.WriteAllLines("c:/DailyReport/allTests.txt", allTests);
         }
     }

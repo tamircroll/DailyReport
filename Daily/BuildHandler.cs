@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
+using Daily.Build;
 
 namespace Daily
 {
@@ -15,26 +17,15 @@ namespace Daily
             throw new Exception("App version was not found in suite: " + line);
         }
 
-        public static List<string> getAllBuildsNumbers(List<List<string>> files)
+        public static List<string> getAllBuildsNumbers(List<TcBuild> builds)
         {
-            List<string> all = new List<string>();
-            foreach (List<string> file in files)
-            {
-                all.Add(getBuildNumber(file[1]));
-            }
-
-            return all;
+            return builds.Select(build => getBuildNumber(build.Log[0])).ToList();
         }
 
         public static string getBuildAsLink(string buildName, List<string> fileLines)
         {
-            string link = fileLines[4].Replace("TeamCity URL ", "") + "&tab=artifacts";
+            string link = fileLines[3].Replace("TeamCity URL ", "") + "&tab=artifacts";
             return new LinkCreator().makeLink(buildName, link);
-        }
-
-        public static string getBuildAsLink(List<string> fileLines)
-        {
-            return getBuildAsLink(fileLines[0], fileLines);
         }
     }
 }

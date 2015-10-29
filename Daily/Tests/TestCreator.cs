@@ -14,7 +14,7 @@ namespace Daily.Tests
 
             TestsResult result = getTestResult(testLines);
 
-            if (result == TestsResult.Ignored) return new Test(testLines[1], result, suiteName, buildNumber, "", "");
+            if (result == TestsResult.Ignored) return new Test(testLines[0], result, suiteName, buildNumber, "", "");
             
             string exception = result == TestsResult.Failed ? getException(testLines) : "";
             string testName = getTestName(testLines, result, exception);

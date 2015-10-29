@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Daily.Build;
 
 namespace Daily.Tests
 {
@@ -30,11 +31,11 @@ namespace Daily.Tests
             return addToEndOfTestName;
         }
 
-        public static List<List<string>> SplitFileToTests(List<string> file)
+        public static List<List<string>> SplitFileToTests(TcBuild build)
         {
-            List<List<string>> tests = new List<List<string>>();
-            List<string> temp = new List<string>();
-            foreach (string line in file)
+            var tests = new List<List<string>>();
+            var temp = new List<string>();
+            foreach (string line in build.Log)
             {
                 if (line.StartsWith(" ++++++ Starting test:") || line.Contains("] Test ignored:"))
                 {

@@ -3,16 +3,24 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
+using Daily.Build;
+using Daily.Io;
 
 namespace Daily
 {
-    public class FilesHandler
+    public class BuildsFromFilesRetriver : IBuildRetriver
     {
-        const string logsFolder = "c:/DailyReport/";
-        public List<List<string>> GetAllAndroidFiles()
+        private LatestLogPathFiner mLatestLogPathFiner;
+        
+
+        public BuildsFromFilesRetriver()
         {
-            var list = new List<List<string>>
+            mLatestLogPathFiner = new LatestLogPathFiner();
+        }
+
+        public List<TcBuild> Get()
+        {
+            var list = new List<TcBuild>
             {
                 GetTestsList("TechnicianView"),
                 GetTestsList("FirstExperience"),
@@ -20,7 +28,6 @@ namespace Daily
                 GetTestsList("TechExpertExperience"),
                 GetTestsList("MultiDevicesTeam"),
                 GetTestsList("EnableMorePartners")
-
             };
 
             list.RemoveAll(item => item == null);
@@ -28,15 +35,15 @@ namespace Daily
             return list;
         }
 
-        private void getAndUpdateArtifactsLink(List<List<string>> list)
+        private void getAndUpdateArtifactsLink(List<TcBuild> builds)
         {
-            foreach (var suite in list)
+            foreach (var build in builds)
             {
-                suite[0] = BuildHandler.getBuildAsLink(suite);
+                build.Link = BuildHandler.getBuildAsLink(build.SuiteName, build.Log);
             }
         }
 
-        private List<string> GetTestsList(string suite)
+        private TcBuild GetTestsList(string suite)
         {
             var builder = new StringBuilder();
             foreach (var c in suite)
@@ -48,11 +55,14 @@ namespace Daily
 
             try
             {
-                return new List<string>(
-                        new List<string> { suite }
-                            .Concat(File.ReadAllLines(getLatestLogPath(logsFolder, suiteSplittedByCapitel), Encoding.UTF8)));
+                return new TcBuild
+                {
+                    SuiteName = suite,
+                    Log = File.ReadAllLines(mLatestLogPathFiner.Find(suiteSplittedByCapitel), Encoding.UTF8).ToList()
+                };
+
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return null;
             }
@@ -60,10 +70,10 @@ namespace Daily
 
         public static List<List<string>> getAllFilesFromDirectory(string folderPath, string desclude)
         {
-            List<List<string>> toReturn = new List<List<string>>();
-            List<string> filesPaths = Directory.GetFiles(folderPath).ToList();
+            var toReturn = new List<List<string>>();
+            var filesPaths = Directory.GetFiles(folderPath).ToList();
 
-            foreach (string path in filesPaths)
+            foreach (var path in filesPaths)
             {
                 if (!path.Contains(desclude))
                 {
@@ -88,31 +98,6 @@ namespace Daily
             }
 
             return name.Remove(name.Length - 1) + ".txt";
-        }
-
-        private string getLatestLogPath(string folder, string suiteName)
-        {
-            var pattern = suiteName.Split(' ').Aggregate("", (current, s) => current + (".*" + s)) + @".*?(\d+)";
-            var regex = new Regex(pattern);
-            var toReturn = "";
-            var maxBuildNumber = -1;
-
-            foreach (var file in Directory.GetFiles(folder))
-            {
-                if (regex.IsMatch(file))
-                {
-                    var buildNumber = Int32.Parse(regex.Match(file).Groups[1].Value);
-                    if (buildNumber > maxBuildNumber)
-                    {
-                        maxBuildNumber = buildNumber;
-                        toReturn = file;
-                    }
-                }
-            }
-
-            if (toReturn == "")
-                throw new FileNotFoundException();
-            return toReturn;
         }
     }
 }

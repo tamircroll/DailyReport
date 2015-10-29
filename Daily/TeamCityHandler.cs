@@ -1,18 +1,19 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Daily.Build;
 
 namespace Daily
 {
     public class TeamCityHandler
     {
-        public List<int> getAllSuitesTestsSummaries(List<List<string>> files)
+        public List<int> getAllSuitesTestsSummaries(List<TcBuild> builds)
         {
             var testSummaryBySuiteCount = new List<int> {0, 0, 0};
-            foreach (var file in files)
+            foreach (var build in builds)
             {
-                if (file.Count > 3)
+                if (build.Log.Count > 3)
                 {
-                    addSuiteTestsSummary(file[3], testSummaryBySuiteCount);
+                    addSuiteTestsSummary(build.Log[2], testSummaryBySuiteCount);
                 }
             }
 
