@@ -1,6 +1,8 @@
-﻿namespace Daily.Tests
+﻿using System.Collections.Generic;
+
+namespace Daily.Tests
 {
-    class TestHelper
+    static class TestHelper
     {
         public static string GetEndOfTestName(string error)
         {
@@ -27,5 +29,28 @@
 
             return addToEndOfTestName;
         }
+
+        public static List<List<string>> SplitFileToTests(List<string> file)
+        {
+            List<List<string>> tests = new List<List<string>>();
+            List<string> temp = new List<string>();
+            foreach (string line in file)
+            {
+                if (line.StartsWith(" ++++++ Starting test:") || line.Contains("] Test ignored:"))
+                {
+                    tests.Add(temp);
+                    temp = new List<string> { line };
+                }
+                else
+                {
+                    temp.Add(line);
+                }
+            }
+            tests.Add(temp);
+            tests.RemoveAt(0);
+            return tests;
+        }
+
+
     }
 }

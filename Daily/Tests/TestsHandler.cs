@@ -20,30 +20,9 @@ namespace Daily.Tests
             {
                 string buildNumber = BuildHandler.getBuildNumber(file[1]);
                 string suiteNameAndLink = file[0];
-                List<List<string>> fileSplitedToTests = splitFileToTests(file);
+                List<List<string>> fileSplitedToTests = TestHelper.SplitFileToTests(file);
                 addSuiteToTestsHandler(fileSplitedToTests, suiteNameAndLink, buildNumber);
             }
-        }
-
-        private List<List<string>> splitFileToTests(List<string> file)
-        {
-            List<List<string>> tests = new List<List<string>>();
-            List<string> temp = new List<string>();
-            foreach (string line in file)
-            {
-                if (line.StartsWith(" ++++++ Starting test:") || line.Contains("] Test ignored:"))
-                {
-                    tests.Add(temp);
-                    temp = new List<string> {line};
-                }
-                else
-                {
-                    temp.Add(line);
-                }
-            }
-            tests.Add(temp);
-            tests.RemoveAt(0);
-            return tests;
         }
 
         public override string ToString()
